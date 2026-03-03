@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MGOS Sentinel™ — Deterministic Veto Kernel for Safety-Critical AI</title>
+<meta name="description" content="MGOS Sentinel is a patent-pending deterministic authorization kernel that enforces a runtime veto boundary between AI systems and execution. Fail-safe by construction. Tamper-evident audit receipts.">
+<meta name="keywords" content="MGOS, safety kernel, AI safety, runtime assurance, deterministic, veto kernel, EU AI Act, ISO 26262, IEC 61508, DO-178C">
+<meta name="author" content="Piotr Łukasz Jurkiewicz, PhD">
+
+<!-- Open Graph -->
+<meta property="og:title" content="MGOS Sentinel™ — Deterministic Veto Kernel">
+<meta property="og:description" content="Patent-pending deterministic authorization kernel for safety-critical AI systems. Fail-safe by construction.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mgos.io">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --black: #0a0a0a;
+  --white: #fafaf8;
+  --gray-100: #f0f0ee;
+  --gray-200: #e0e0dd;
+  --gray-400: #999;
+  --gray-600: #666;
+  --gray-800: #333;
+  --accent: #c8ff00;
+  --red: #ff3b30;
+  --green: #34c759;
+  --mono: 'DM Mono', 'SF Mono', 'Fira Code', monospace;
+  --sans: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { 
+  font-size: 16px; 
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background: var(--black);
+  color: var(--white);
+  font-family: var(--sans);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--black);
+}
+
+/* ─── GRAIN OVERLAY ─── */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ─── LAYOUT ─── */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+section {
+  padding: 6rem 0;
+}
+
+/* ─── NAV ─── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 1.25rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(10,10,10,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: var(--white);
+}
+
+.nav-logo-icon {
+  width: 32px;
+  height: 32px;
+  background: var(--white);
+  border-radius: 6px;
+  display: flex;
+  align-items: flex-end;
+  padding: 4px;
+  gap: 2px;
+}
+
+.nav-logo-icon .block-lg {
+  width: 14px;
+  height: 18px;
+  background: var(--black);
+  border-radius: 1px;
+}
+
+.nav-logo-icon .block-sm {
+  width: 8px;
+  height: 10px;
+  background: var(--black);
+  border-radius: 1px;
+}
+
+.nav-logo span {
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.nav-links a {
+  color: var(--gray-400);
+  text-decoration: none;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { color: var(--white); }
+
+.nav-cta {
+  background: var(--white) !important;
+  color: var(--black) !important;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: opacity 0.2s !important;
+}
+
+.nav-cta:hover { opacity: 0.85; }
+
+/* ─── HERO ─── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 5rem;
+  position: relative;
+}
+
+.hero-tag {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gray-400);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.hero-tag::before {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: var(--gray-600);
+}
+
+.patent-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(52,199,89,0.1);
+  border: 1px solid rgba(52,199,89,0.25);
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  font-size: 0.65rem;
+  color: var(--green);
+}
+
+.patent-badge::before {
+  content: '●';
+  font-size: 0.5rem;
+}
+
+h1 {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: clamp(2.5rem, 5.5vw, 4.2rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  max-width: 800px;
+  margin-bottom: 2rem;
+}
+
+h1 .highlight {
+  color: var(--accent);
+}
+
+.hero-sub {
+  font-size: 1.15rem;
+  color: var(--gray-400);
+  max-width: 560px;
+  line-height: 1.7;
+  margin-bottom: 3rem;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--white);
+  color: var(--black);
+  padding: 0.85rem 1.75rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  background: var(--accent);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  color: var(--white);
+  padding: 0.85rem 1.75rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.15);
+  text-decoration: none;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  border-color: rgba(255,255,255,0.4);
+  background: rgba(255,255,255,0.04);
+}
+
+/* ─── FLOATING KERNEL VISUAL ─── */
+.hero-visual {
+  position: absolute;
+  right: -2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 380px;
+  height: 380px;
+  opacity: 0.06;
+  pointer-events: none;
+}
+
+.hero-visual svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ─── GUARANTEES ─── */
+.guarantees {
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.guarantees-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.guarantee {
+  background: var(--black);
+  padding: 2.5rem 2rem;
+}
+
+.guarantee-icon {
+  font-family: var(--mono);
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  opacity: 0.6;
+}
+
+.guarantee h3 {
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.guarantee p {
+  font-size: 0.85rem;
+  color: var(--gray-400);
+  line-height: 1.6;
+}
+
+/* ─── PROBLEM / SOLUTION ─── */
+.problem-solution {
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.ps-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+}
+
+.ps-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gray-600);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ps-label .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.ps-label .dot-red { background: var(--red); }
+.ps-label .dot-green { background: var(--green); }
+
+.ps-block h2 {
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.25rem;
+  line-height: 1.25;
+}
+
+.ps-block p {
+  color: var(--gray-400);
+  line-height: 1.75;
+  font-size: 0.95rem;
+}
+
+/* ─── ARCHITECTURE ─── */
+.architecture {
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.section-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gray-600);
+  margin-bottom: 3rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.section-label::before {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: var(--gray-600);
+}
+
+.arch-layers {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.arch-layer {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 1.5rem;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 6px;
+  transition: all 0.25s;
+}
+
+.arch-layer:hover {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.08);
+}
+
+.arch-layer.active {
+  background: rgba(200,255,0,0.04);
+  border-color: rgba(200,255,0,0.2);
+}
+
+.layer-id {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--gray-600);
+  letter-spacing: 0.05em;
+}
+
+.arch-layer.active .layer-id {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.layer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.layer-name {
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.arch-layer.active .layer-name {
+  color: var(--accent);
+}
+
+.layer-output {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--gray-600);
+  text-align: right;
+}
+
+.arch-layer.active .layer-output {
+  color: var(--accent);
+  opacity: 0.7;
+}
+
+.arch-arrow {
+  display: flex;
+  justify-content: center;
+  padding: 0.3rem 0;
+  color: var(--gray-600);
+  font-size: 0.75rem;
+}
+
+/* ─── COMPARISON TABLE ─── */
+.comparison {
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.comp-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.comp-table th {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gray-400);
+  padding: 1rem 1.5rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  font-weight: 400;
+}
+
+.comp-table th:not(:first-child) { text-align: center; }
+
+.comp-table td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 0.85rem;
+  color: var(--gray-400);
+}
+
+.comp-table td:first-child {
+  color: var(--white);
+  font-weight: 500;
+}
+
+.comp-table td:not(:first-child) {
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+}
+
+.check { color: var(--green); }
+.cross { color: var(--red); opacity: 0.5; }
+
+/* ─── MARKETS ─── */
+.markets {
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.markets-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.market {
+  background: var(--black);
+  padding: 2.5rem 2rem;
+}
+
+.market-value {
+  font-family: var(--mono);
+  font-size: 2rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+}
+
+.market-label {
+  font-size: 0.85rem;
+  color: var(--gray-400);
+  margin-bottom: 0.25rem;
+}
+
+.market-source {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--gray-600);
+}
+
+/* ─── CREDENTIALS ─── */
+.credentials {
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.cred-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+}
+
+.cred-item {
+  padding: 2rem;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+}
+
+.cred-status {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.cred-status.filed { color: var(--green); }
+.cred-status.review { color: #ff9f0a; }
+.cred-status.live { color: var(--accent); }
+
+.cred-item h3 {
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.cred-item p {
+  font-size: 0.8rem;
+  color: var(--gray-400);
+  line-height: 1.6;
+}
+
+/* ─── CTA / CONTACT ─── */
+.cta-section {
+  border-top: 1px solid rgba(255,255,255,0.06);
+  text-align: center;
+  padding: 8rem 0;
+}
+
+.cta-section h2 {
+  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  margin-bottom: 1.25rem;
+}
+
+.cta-section p {
+  color: var(--gray-400);
+  font-size: 1rem;
+  max-width: 500px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.7;
+}
+
+.cta-email {
+  font-family: var(--mono);
+  font-size: 1.1rem;
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(200,255,0,0.3);
+  padding-bottom: 2px;
+  transition: border-color 0.2s;
+}
+
+.cta-email:hover {
+  border-color: var(--accent);
+}
+
+/* ─── FOOTER ─── */
+footer {
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding: 3rem 0;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-left {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--gray-600);
+  line-height: 1.8;
+}
+
+.footer-right {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--gray-600);
+  text-align: right;
+  line-height: 1.8;
+}
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-tag { animation: fadeUp 0.6s ease-out 0.1s both; }
+h1 { animation: fadeUp 0.6s ease-out 0.2s both; }
+.hero-sub { animation: fadeUp 0.6s ease-out 0.35s both; }
+.hero-actions { animation: fadeUp 0.6s ease-out 0.5s both; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 900px) {
+  .guarantees-grid { grid-template-columns: repeat(2, 1fr); }
+  .ps-grid { grid-template-columns: 1fr; gap: 3rem; }
+  .markets-grid { grid-template-columns: 1fr; }
+  .cred-grid { grid-template-columns: 1fr; }
+  .hero-visual { display: none; }
+  
+  .nav-links a:not(.nav-cta) { display: none; }
+}
+
+@media (max-width: 600px) {
+  .guarantees-grid { grid-template-columns: 1fr; }
+  section { padding: 4rem 0; }
+  .container { padding: 0 1.25rem; }
+  nav { padding: 1rem 1.25rem; }
+  
+  .comp-table { font-size: 0.75rem; }
+  .comp-table td, .comp-table th { padding: 0.75rem 0.75rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ─── NAV ─── -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon">
+      <div class="block-lg"></div>
+      <div class="block-sm"></div>
+    </div>
+    <span>MGOS Sentinel™</span>
+  </a>
+  <div class="nav-links">
+    <a href="#architecture">Architecture</a>
+    <a href="#comparison">Compare</a>
+    <a href="#credentials">Research</a>
+    <a href="#contact" class="nav-cta">Contact →</a>
+  </div>
+</nav>
+
+<!-- ─── HERO ─── -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-tag">
+      Runtime Safety Kernel
+      <span class="patent-badge">Patent Pending</span>
+    </div>
+    <h1>Deterministic veto kernel for <span class="highlight">safety-critical AI</span></h1>
+    <p class="hero-sub">
+      MGOS Sentinel™ is a non-learning authorization boundary between AI inference 
+      and execution. If upstream signals conflict, execution is blocked — never averaged. 
+      Every decision produces a tamper-evident audit receipt.
+    </p>
+    <div class="hero-actions">
+      <a href="#contact" class="btn-primary">Request One-Pager ↓</a>
+      <a href="#architecture" class="btn-secondary">See Architecture</a>
+    </div>
+  </div>
+  
+  <div class="hero-visual">
+    <svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="50" y="50" width="300" height="300" stroke="white" stroke-width="0.5" rx="8"/>
+      <rect x="100" y="100" width="200" height="200" stroke="white" stroke-width="0.5" rx="4"/>
+      <rect x="150" y="150" width="100" height="100" fill="white" rx="2"/>
+      <line x1="200" y1="0" x2="200" y2="150" stroke="white" stroke-width="0.5" stroke-dasharray="4 4"/>
+      <line x1="200" y1="250" x2="200" y2="400" stroke="white" stroke-width="0.5" stroke-dasharray="4 4"/>
+      <line x1="0" y1="200" x2="150" y2="200" stroke="white" stroke-width="0.5" stroke-dasharray="4 4"/>
+      <line x1="250" y1="200" x2="400" y2="200" stroke="white" stroke-width="0.5" stroke-dasharray="4 4"/>
+    </svg>
+  </div>
+</section>
+
+<!-- ─── GUARANTEES ─── -->
+<section class="guarantees">
+  <div class="container">
+    <div class="guarantees-grid">
+      <div class="guarantee">
+        <div class="guarantee-icon">⊢</div>
+        <h3>Termination</h3>
+        <p>Always halts. No unbounded loops, recursion, or data-dependent iteration. Bounded-time by construction.</p>
+      </div>
+      <div class="guarantee">
+        <div class="guarantee-icon">⊥</div>
+        <h3>Fail-Safe</h3>
+        <p>Contradictory inputs trigger BLOCK, never pass-through. No averaging of conflicting signals into risky execution.</p>
+      </div>
+      <div class="guarantee">
+        <div class="guarantee-icon">≡</div>
+        <h3>Determinism</h3>
+        <p>Identical inputs always produce identical outputs. Bitwise-reproducible decisions verified by SHA-256 hashes.</p>
+      </div>
+      <div class="guarantee">
+        <div class="guarantee-icon">#</div>
+        <h3>Audit Trail</h3>
+        <p>Every decision emits a hash-verified, tamper-evident receipt. Replayable by third parties. Chain-linked witnesses.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── PROBLEM / SOLUTION ─── -->
+<section class="problem-solution">
+  <div class="container">
+    <div class="ps-grid">
+      <div class="ps-block">
+        <div class="ps-label"><span class="dot dot-red"></span> Problem</div>
+        <h2>AI systems make probabilistic decisions. Safety requires deterministic guarantees.</h2>
+        <p>When multiple upstream sources disagree — sensors conflict, models hallucinate, channels go Byzantine — probabilistic guardrails average their way into unsafe execution. Content filters catch bad outputs. Nobody gates the actions.</p>
+      </div>
+      <div class="ps-block">
+        <div class="ps-label"><span class="dot dot-green"></span> Solution</div>
+        <h2>MGOS separates prediction from authorization at the execution boundary.</h2>
+        <p>AI proposes. MGOS decides. The kernel sits at the last line before actuation: no model weights, no training, no drift. Contradiction reduces available actions to zero — triggering a conservative veto with a cryptographic receipt proving why.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── ARCHITECTURE ─── -->
+<section class="architecture" id="architecture">
+  <div class="container">
+    <div class="section-label">Layered Architecture</div>
+    
+    <div class="arch-layers">
+      <div class="arch-layer">
+        <span class="layer-id">Layer 0</span>
+        <div class="layer-content">
+          <span class="layer-name">Operational Information Domain</span>
+          <span class="layer-output">sensors, OSINT, media streams</span>
+        </div>
+      </div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-layer">
+        <span class="layer-id">Layer 1</span>
+        <div class="layer-content">
+          <span class="layer-name">Epistemic Consistency Filter</span>
+          <span class="layer-output">structural coherence / warning</span>
+        </div>
+      </div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-layer">
+        <span class="layer-id">Layer 2</span>
+        <div class="layer-content">
+          <span class="layer-name">Probabilistic Inference Layer</span>
+          <span class="layer-output">LLMs, ML models, scoring engines</span>
+        </div>
+      </div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-layer">
+        <span class="layer-id">Layer 3</span>
+        <div class="layer-content">
+          <span class="layer-name">Distribution Stabilization (STCL)</span>
+          <span class="layer-output">bounded, stable distributions</span>
+        </div>
+      </div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-layer active">
+        <span class="layer-id">Layer 4</span>
+        <div class="layer-content">
+          <span class="layer-name">MGOS Decision Kernel ← this is us</span>
+          <span class="layer-output">ALLOW / BLOCK + receipt</span>
+        </div>
+      </div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-layer">
+        <span class="layer-id">Layer 5</span>
+        <div class="layer-content">
+          <span class="layer-name">Executive Domain</span>
+          <span class="layer-output">actuators, APIs, C2 systems</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── COMPARISON ─── -->
+<section class="comparison" id="comparison">
+  <div class="container">
+    <div class="section-label">MGOS vs. Probabilistic Guardrails</div>
+    
+    <table class="comp-table">
+      <thead>
+        <tr>
+          <th>Property</th>
+          <th>MGOS Sentinel™</th>
+          <th>Probabilistic Guardrails</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Bitwise determinism</td>
+          <td><span class="check">✓ Guaranteed</span></td>
+          <td><span class="cross">✗ Model-dependent</span></td>
+        </tr>
+        <tr>
+          <td>Fail-safe on contradiction</td>
+          <td><span class="check">✓ By construction</span></td>
+          <td><span class="cross">✗ Averaged / softmax</span></td>
+        </tr>
+        <tr>
+          <td>Tamper-evident receipts</td>
+          <td><span class="check">✓ SHA-256 chain</span></td>
+          <td><span class="cross">✗ Logs only</span></td>
+        </tr>
+        <tr>
+          <td>Model weights / training</td>
+          <td><span class="check">✓ None — no drift</span></td>
+          <td><span class="cross">✗ Requires updates</span></td>
+        </tr>
+        <tr>
+          <td>Certification-ready evidence</td>
+          <td><span class="check">✓ Hash-verified bundles</span></td>
+          <td><span class="cross">✗ Not designed for</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ─── MARKETS ─── -->
+<section class="markets">
+  <div class="container">
+    <div class="section-label">Target Markets</div>
+    <div class="markets-grid">
+      <div class="market">
+        <div class="market-value">$7.3B</div>
+        <div class="market-label">AI Guardrails & Safety</div>
+        <div class="market-source">by 2030 · 24% CAGR</div>
+      </div>
+      <div class="market">
+        <div class="market-value">$12.8B</div>
+        <div class="market-label">Functional Safety Systems</div>
+        <div class="market-source">by 2032 · IEC 61508 / ISO 26262</div>
+      </div>
+      <div class="market">
+        <div class="market-value">€17B</div>
+        <div class="market-label">EU AI Act Compliance</div>
+        <div class="market-source">by 2030 · Art. 9–15 enforcement Aug 2026</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CREDENTIALS ─── -->
+<section class="credentials" id="credentials">
+  <div class="container">
+    <div class="section-label">Research & IP Status</div>
+    <div class="cred-grid">
+      <div class="cred-item">
+        <div class="cred-status filed">● Patent Filed</div>
+        <h3>Polish Patent Application</h3>
+        <p>Full application filed 30 December 2025 with the Polish Patent Office (UP RP). US provisional patent pending.</p>
+      </div>
+      <div class="cred-item">
+        <div class="cred-status review">● Under Review</div>
+        <h3>SAFECOMP 2026 Submission</h3>
+        <p>Peer-reviewed paper submitted to SAFECOMP 2026 (Springer LNCS). Conference: Valencia, September 22–25, 2026.</p>
+      </div>
+      <div class="cred-item">
+        <div class="cred-status live">● Working Demo</div>
+        <h3>macOS Application</h3>
+        <p>Native desktop application demonstrating the MGOS decision kernel with hash-verified evidence pipeline and scenario runner.</p>
+      </div>
+      <div class="cred-item">
+        <div class="cred-status filed">● Verified</div>
+        <h3>Independent Expert Opinion</h3>
+        <p>Independent patent expert assessed MGOS as having "very high patentability" — novel combination of hardware determinism, logical veto, and cryptographic decision proofs.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA ─── -->
+<section class="cta-section" id="contact">
+  <div class="container">
+    <h2>Interested in licensing, integration, or research collaboration?</h2>
+    <p>I'm looking for partners who build guardrails, safety systems, or AI governance platforms — and need a deterministic enforcement layer underneath.</p>
+    <a href="mailto:piotr.jurkiewicz@mgos.io" class="cta-email">piotr.jurkiewicz@mgos.io</a>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─── -->
+<footer>
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-left">
+        © 2026 Piotr Łukasz Jurkiewicz, PhD<br>
+        Founder & Inventor · MGOS Sentinel™<br>
+        All rights reserved. Patent pending.
+      </div>
+      <div class="footer-right">
+        MGOS concept, architecture, formal framework,<br>
+        and implementation by Piotr Łukasz Jurkiewicz.<br>
+        <a href="mailto:piotr.jurkiewicz@mgos.io" style="color: var(--gray-400);">piotr.jurkiewicz@mgos.io</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
