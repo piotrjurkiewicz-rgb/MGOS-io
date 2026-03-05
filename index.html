@@ -50,14 +50,60 @@ body {
 
 ::selection { background: var(--accent); color: var(--bg); }
 
-/* ─── NOISE ─── */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 9999;
+/* No decorative noise — deterministic product, deterministic aesthetics */
+
+/* ─── GRAPH TOPOLOGY (fail-safe viz) ─── */
+.graph-viz {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2rem;
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 180px;
+}
+.graph-viz svg { max-width: 100%; }
+
+/* ─── TERMINAL REPLAY ─── */
+.terminal-replay {
+  background: #0a0a0a;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  line-height: 1.9;
+}
+.terminal-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: #060607;
+  border-bottom: 1px solid var(--border);
+}
+.terminal-bar .dot-r { width: 8px; height: 8px; border-radius: 50%; }
+.terminal-bar .d1 { background: #ef4444; opacity: 0.7; }
+.terminal-bar .d2 { background: #f59e0b; opacity: 0.7; }
+.terminal-bar .d3 { background: #22c55e; opacity: 0.7; }
+.terminal-bar span { color: var(--gray-700); font-size: 0.55rem; margin-left: 6px; }
+.terminal-body {
+  padding: 14px;
+  color: var(--gray-500);
+}
+.terminal-body .ln { opacity: 0; animation: termLine 0.08s linear forwards; }
+.terminal-body .pass { color: var(--green); }
+.terminal-body .accent { color: var(--accent); }
+.terminal-body .dim { color: var(--gray-700); }
+@keyframes termLine { to { opacity: 1; } }
+
+/* ─── ARCH DIAGRAM (SVG-based) ─── */
+.arch-diagram {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
 }
 
 .container { max-width: 1080px; margin: 0 auto; padding: 0 2rem; }
@@ -686,17 +732,17 @@ footer {
 .footer-right a { color: var(--gray-300); text-decoration: none; }
 .footer-right a:hover { color: var(--accent); }
 
-/* ─── ANIMATIONS ─── */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
+/* ─── ANIMATIONS — step reveal, not fluid ─── */
+@keyframes stepIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
-.hero-label { animation: fadeUp 0.5s ease-out 0.1s both; }
-h1 { animation: fadeUp 0.5s ease-out 0.2s both; }
-.motto { animation: fadeUp 0.5s ease-out 0.3s both; }
-.hero-promises { animation: fadeUp 0.5s ease-out 0.4s both; }
-.hero-not { animation: fadeUp 0.5s ease-out 0.45s both; }
-.hero-actions { animation: fadeUp 0.5s ease-out 0.5s both; }
+.hero-label { animation: stepIn 0.15s linear 0.05s both; }
+h1 { animation: stepIn 0.15s linear 0.1s both; }
+.motto { animation: stepIn 0.15s linear 0.15s both; }
+.hero-promises { animation: stepIn 0.15s linear 0.2s both; }
+.hero-not { animation: stepIn 0.15s linear 0.22s both; }
+.hero-actions { animation: stepIn 0.15s linear 0.25s both; }
 
 /* ─── RESPONSIVE ─── */
 
@@ -1019,6 +1065,7 @@ h1 { animation: fadeUp 0.5s ease-out 0.2s both; }
   .metrics-strip { grid-template-columns: repeat(2, 1fr); }
   .cases-grid { grid-template-columns: 1fr; }
   .roadmap-strip { grid-template-columns: repeat(2, 1fr); }
+  .arch-diagram svg { width: 100%; height: auto; }
   .eval-path { grid-template-columns: repeat(2, 1fr); }
   .eval-step:nth-child(2)::after { display: none; }
   .policies-grid { grid-template-columns: 1fr; }
@@ -1124,6 +1171,56 @@ h1 { animation: fadeUp 0.5s ease-out 0.2s both; }
         <p>The kernel sits at the last point before actuation. It does not modify actions — it authorizes, blocks, or stops them (ALLOW / BLOCK / STOP). Contradiction reduces available actions to zero: BLOCK, plus a hash-verified receipt explaining why. MGOS blocks execution on conflict — never averages.</p>
       </div>
     </div>
+    
+    <!-- Graph topology: fail-safe visualization -->
+    <div class="graph-viz">
+      <svg viewBox="0 0 700 160" width="700" height="160" xmlns="http://www.w3.org/2000/svg">
+        <!-- Channel cluster (left) -->
+        <circle cx="80" cy="50" r="14" fill="none" stroke="#555" stroke-width="1.5"/>
+        <text x="80" y="54" text-anchor="middle" font-family="monospace" font-size="9" fill="#888">CH₁</text>
+        <circle cx="80" cy="110" r="14" fill="none" stroke="#555" stroke-width="1.5"/>
+        <text x="80" y="114" text-anchor="middle" font-family="monospace" font-size="9" fill="#888">CH₂</text>
+        <circle cx="140" cy="80" r="14" fill="none" stroke="#555" stroke-width="1.5"/>
+        <text x="140" y="84" text-anchor="middle" font-family="monospace" font-size="9" fill="#888">CH₃</text>
+        
+        <!-- Lines to kernel -->
+        <line x1="94" y1="55" x2="310" y2="78" stroke="#333" stroke-width="1" id="line1"/>
+        <line x1="94" y1="105" x2="310" y2="82" stroke="#333" stroke-width="1" id="line2"/>
+        <line x1="154" y1="80" x2="310" y2="80" stroke="#333" stroke-width="1" id="line3"/>
+        
+        <!-- MGOS Kernel (center) — hard boundary -->
+        <rect x="310" y="52" width="80" height="56" rx="4" fill="none" stroke="#b8ee00" stroke-width="2"/>
+        <text x="350" y="76" text-anchor="middle" font-family="monospace" font-size="8" fill="#b8ee00" font-weight="bold">MGOS</text>
+        <text x="350" y="88" text-anchor="middle" font-family="monospace" font-size="7" fill="#b8ee00" opacity="0.6">KERNEL</text>
+        
+        <!-- Output bridge -->
+        <line x1="390" y1="80" x2="500" y2="80" stroke="#333" stroke-width="2" stroke-dasharray="4,3" id="bridge"/>
+        
+        <!-- Actuator cluster (right) -->
+        <rect x="500" y="62" width="60" height="36" rx="3" fill="none" stroke="#555" stroke-width="1.5"/>
+        <text x="530" y="84" text-anchor="middle" font-family="monospace" font-size="8" fill="#888">EXEC</text>
+        
+        <!-- Status labels -->
+        <text x="350" y="38" text-anchor="middle" font-family="monospace" font-size="7" fill="#555">TMR VOTE</text>
+        
+        <!-- Conflict state (red X on bridge) -->
+        <g id="conflict-state">
+          <line x1="435" y1="65" x2="455" y2="95" stroke="#ef4444" stroke-width="2.5" opacity="0.8"/>
+          <line x1="455" y1="65" x2="435" y2="95" stroke="#ef4444" stroke-width="2.5" opacity="0.8"/>
+        </g>
+        
+        <!-- BLOCK label -->
+        <rect x="420" y="100" width="52" height="18" rx="2" fill="#ef4444" opacity="0.15"/>
+        <text x="446" y="113" text-anchor="middle" font-family="monospace" font-size="8" fill="#ef4444" font-weight="bold">BLOCK</text>
+        
+        <!-- Receipt arrow -->
+        <line x1="446" y1="118" x2="446" y2="140" stroke="#ef4444" stroke-width="1" opacity="0.4"/>
+        <text x="446" y="152" text-anchor="middle" font-family="monospace" font-size="6" fill="#555">+ receipt</text>
+        
+        <!-- Contradiction label on CH2 -->
+        <text x="80" y="138" text-anchor="middle" font-family="monospace" font-size="6" fill="#ef4444" opacity="0.6">⚠ contradicts CH₁</text>
+      </svg>
+    </div>
   </div>
 </section>
 
@@ -1205,6 +1302,80 @@ h1 { animation: fadeUp 0.5s ease-out 0.2s both; }
 <section class="divider" id="architecture">
   <div class="container">
     <div class="s-label">Reference Architecture (L0–L5)</div>
+    
+    <!-- SVG Architecture Diagram -->
+    <div class="arch-diagram">
+      <svg viewBox="0 0 760 320" width="760" height="320" xmlns="http://www.w3.org/2000/svg">
+        <!-- Background zones -->
+        <rect x="40" y="20" width="300" height="280" rx="6" fill="#0e1012" stroke="#1a1a1a" stroke-width="1"/>
+        <rect x="420" y="20" width="300" height="280" rx="6" fill="#0e1012" stroke="#1a1a1a" stroke-width="1"/>
+        
+        <!-- Zone labels -->
+        <text x="190" y="12" text-anchor="middle" font-family="monospace" font-size="8" fill="#333" letter-spacing="2">YOUR STACK</text>
+        <text x="570" y="12" text-anchor="middle" font-family="monospace" font-size="8" fill="#333" letter-spacing="2">YOUR STACK</text>
+        
+        <!-- Layer 0 -->
+        <rect x="60" y="35" width="260" height="32" rx="3" fill="none" stroke="#2a2a2a" stroke-width="1"/>
+        <text x="72" y="55" font-family="monospace" font-size="8" fill="#555">L0</text>
+        <text x="100" y="55" font-family="monospace" font-size="9" fill="#888">Sensors · OSINT · Media</text>
+        
+        <!-- Arrow -->
+        <text x="190" y="80" text-anchor="middle" font-family="monospace" font-size="9" fill="#333">↓</text>
+        
+        <!-- Layer 1 -->
+        <rect x="60" y="85" width="260" height="32" rx="3" fill="none" stroke="#2a2a2a" stroke-width="1"/>
+        <text x="72" y="105" font-family="monospace" font-size="8" fill="#555">L1</text>
+        <text x="100" y="105" font-family="monospace" font-size="9" fill="#888">Epistemic Filter</text>
+        
+        <text x="190" y="130" text-anchor="middle" font-family="monospace" font-size="9" fill="#333">↓</text>
+        
+        <!-- Layer 2 -->
+        <rect x="60" y="135" width="260" height="32" rx="3" fill="none" stroke="#2a2a2a" stroke-width="1"/>
+        <text x="72" y="155" font-family="monospace" font-size="8" fill="#555">L2</text>
+        <text x="100" y="155" font-family="monospace" font-size="9" fill="#888">LLMs · ML · Inference</text>
+        
+        <text x="190" y="180" text-anchor="middle" font-family="monospace" font-size="9" fill="#333">↓</text>
+        
+        <!-- Layer 3 -->
+        <rect x="60" y="185" width="260" height="32" rx="3" fill="none" stroke="#2a2a2a" stroke-width="1"/>
+        <text x="72" y="205" font-family="monospace" font-size="8" fill="#555">L3</text>
+        <text x="100" y="205" font-family="monospace" font-size="9" fill="#888">Distribution Stabilization</text>
+        
+        <!-- Arrow to MGOS -->
+        <line x1="190" y1="217" x2="190" y2="230" stroke="#555" stroke-width="1"/>
+        <line x1="190" y1="230" x2="360" y2="230" stroke="#555" stroke-width="1"/>
+        <line x1="360" y1="230" x2="360" y2="148" stroke="#555" stroke-width="1"/>
+        
+        <!-- ═══ MGOS KERNEL (L4) — THE BOUNDARY ═══ -->
+        <rect x="348" y="108" width="64" height="84" rx="4" fill="rgba(184,238,0,0.08)" stroke="#b8ee00" stroke-width="2"/>
+        <text x="380" y="140" text-anchor="middle" font-family="monospace" font-size="9" fill="#b8ee00" font-weight="bold">MGOS</text>
+        <text x="380" y="153" text-anchor="middle" font-family="monospace" font-size="7" fill="#b8ee00" opacity="0.7">L4</text>
+        <text x="380" y="180" text-anchor="middle" font-family="monospace" font-size="6" fill="#b8ee00" opacity="0.5">ALLOW</text>
+        <text x="380" y="188" text-anchor="middle" font-family="monospace" font-size="6" fill="#ef4444" opacity="0.5">BLOCK</text>
+        
+        <!-- Arrow from MGOS to exec -->
+        <line x1="412" y1="150" x2="440" y2="150" stroke="#b8ee00" stroke-width="1.5" opacity="0.5"/>
+        
+        <!-- Layer 5 -->
+        <rect x="440" y="35" width="260" height="32" rx="3" fill="none" stroke="#2a2a2a" stroke-width="1"/>
+        <text x="452" y="55" font-family="monospace" font-size="8" fill="#555">L5</text>
+        <text x="480" y="55" font-family="monospace" font-size="9" fill="#888">Actuators · APIs · C2</text>
+        
+        <!-- Dotted line: only ALLOW reaches L5 -->
+        <line x1="570" y1="67" x2="570" y2="130" stroke="#333" stroke-width="1" stroke-dasharray="3,3"/>
+        <text x="570" y="145" text-anchor="middle" font-family="monospace" font-size="7" fill="#555">only on ALLOW</text>
+        
+        <!-- Receipt output -->
+        <line x1="380" y1="192" x2="380" y2="260" stroke="#555" stroke-width="1" stroke-dasharray="3,3"/>
+        <rect x="345" y="260" width="70" height="22" rx="2" fill="#141618" stroke="#2a2a2a" stroke-width="1"/>
+        <text x="380" y="275" text-anchor="middle" font-family="monospace" font-size="7" fill="#888">receipt</text>
+        
+        <!-- Policy arrow (external) -->
+        <line x1="380" y1="108" x2="380" y2="80" stroke="#555" stroke-width="1" stroke-dasharray="3,3"/>
+        <text x="380" y="72" text-anchor="middle" font-family="monospace" font-size="6" fill="#555">policy (external)</text>
+      </svg>
+    </div>
+
     <div class="arch-stack">
       <div class="arch-row ref">
         <span class="arch-id">Layer 0</span>
@@ -1255,30 +1426,31 @@ h1 { animation: fadeUp 0.5s ease-out 0.2s both; }
     <div class="s-label">Product (evaluation-first)</div>
     <div class="product-grid">
       <div class="product-screenshot">
-        <div style="background:#111;border-radius:8px;padding:0;overflow:hidden;border:1px solid rgba(255,255,255,0.06);">
-          <!-- Mock title bar -->
-          <div style="display:flex;align-items:center;gap:6px;padding:10px 14px;background:#0a0a0a;border-bottom:1px solid rgba(255,255,255,0.06);">
-            <div style="width:10px;height:10px;border-radius:50%;background:#ef4444;opacity:0.8;"></div>
-            <div style="width:10px;height:10px;border-radius:50%;background:#f59e0b;opacity:0.8;"></div>
-            <div style="width:10px;height:10px;border-radius:50%;background:#22c55e;opacity:0.8;"></div>
-            <span style="font-family:var(--mono);font-size:0.55rem;color:var(--gray-500);margin-left:8px;">MGOS Sentinel™ — Worker Control</span>
+        <div class="terminal-replay">
+          <div class="terminal-bar">
+            <div class="dot-r d1"></div><div class="dot-r d2"></div><div class="dot-r d3"></div>
+            <span>MGOS Sentinel™ — evidence verification run</span>
           </div>
-          <!-- Mock console -->
-          <div style="padding:14px;font-family:var(--mono);font-size:0.6rem;line-height:1.9;color:var(--gray-500);">
-            <div><span style="color:var(--green);">[OK]</span> CORE_PIN=337d69f71970…</div>
-            <div><span style="color:var(--green);">[OK]</span> Worker started (pid 4821)</div>
-            <div><span style="color:var(--green);">[OK]</span> determinism_replay: 100/100 PASS</div>
-            <div><span style="color:var(--green);">[OK]</span> failsafe_conflict: BLOCK on all 6 injections</div>
-            <div><span style="color:var(--green);">[OK]</span> termination_bound (ref config): max 2.1ms &lt; 50ms cap</div>
-            <div><span style="color:var(--accent);">[RUN]</span> evidence_export → bundle SHA256 verified</div>
-          </div>
-          <!-- Mock button bar -->
-          <div style="padding:10px 14px;border-top:1px solid rgba(255,255,255,0.06);display:flex;gap:8px;">
-            <div style="padding:5px 12px;background:var(--accent);color:var(--bg);font-family:var(--mono);font-size:0.55rem;font-weight:600;border-radius:3px;">Start Worker</div>
-            <div style="padding:5px 12px;background:var(--bg-surface);color:var(--gray-300);font-family:var(--mono);font-size:0.55rem;border-radius:3px;border:1px solid var(--border);">Run Suites</div>
-            <div style="padding:5px 12px;background:var(--bg-surface);color:var(--gray-300);font-family:var(--mono);font-size:0.55rem;border-radius:3px;border:1px solid var(--border);">Export Evidence</div>
+          <div class="terminal-body">
+            <div class="ln" style="animation-delay:0.2s"><span class="dim">$</span> ./VERIFY_BUNDLE.sh</div>
+            <div class="ln" style="animation-delay:0.5s"><span class="pass">[OK]</span> MANIFEST.txt — 23 files listed</div>
+            <div class="ln" style="animation-delay:0.7s"><span class="pass">[OK]</span> SHA256SUMS.txt — all 23 hashes match</div>
+            <div class="ln" style="animation-delay:0.9s"><span class="pass">[OK]</span> CORE_PIN=337d69f71970…ecb5 (pinned)</div>
+            <div class="ln" style="animation-delay:1.1s"><span class="dim">$</span> mgos-sentinel --run-suites determinism</div>
+            <div class="ln" style="animation-delay:1.4s"><span class="pass">[OK]</span> determinism_replay: 100/100 PASS</div>
+            <div class="ln" style="animation-delay:1.6s"><span class="pass">[OK]</span> output hash: a4f2c8…91e7 (identical)</div>
+            <div class="ln" style="animation-delay:1.8s"><span class="dim">$</span> mgos-sentinel --run-suites failsafe</div>
+            <div class="ln" style="animation-delay:2.1s"><span class="pass">[OK]</span> failsafe_conflict: BLOCK on 6/6 injections</div>
+            <div class="ln" style="animation-delay:2.3s"><span class="pass">[OK]</span> failsafe_poison: BLOCK on 4/4 dirty frames</div>
+            <div class="ln" style="animation-delay:2.5s"><span class="dim">$</span> mgos-sentinel --run-suites termination</div>
+            <div class="ln" style="animation-delay:2.8s"><span class="pass">[OK]</span> termination_bound (ref config): max 2.1ms &lt; 50ms cap</div>
+            <div class="ln" style="animation-delay:3.0s"><span class="dim">$</span> mgos-sentinel --export-evidence</div>
+            <div class="ln" style="animation-delay:3.3s"><span class="accent">[EXPORT]</span> evidence_bundle.zip — SHA256 verified</div>
+            <div class="ln" style="animation-delay:3.5s"> </div>
+            <div class="ln" style="animation-delay:3.6s"><span class="pass">■ ALL CHECKS PASS</span> <span class="dim">— 16/16 mandatory checks · 0 failures</span></div>
           </div>
         </div>
+        <div style="font-family:var(--mono);font-size:0.6rem;color:var(--gray-700);margin-top:0.5rem;">Representative run (reference config) — full logs in evidence bundle.</div>
       </div>
       <div class="product-features">
         <h3>Desktop Application</h3>
