@@ -1119,6 +1119,7 @@ h1 { animation: stepIn 0.15s linear 0.1s both; }
     
     <div class="hero-actions">
       <a href="mailto:officecontact@mgos.io?subject=MGOS%20Sentinel%20—%20One-Pager%20Request" class="btn btn-w">Download One-Pager (PDF) →</a>
+      <div style="font-family:var(--mono);font-size:0.55rem;color:var(--gray-700);margin-top:0.35rem;">v2 · 2026-03-05 · SHA256: f887b5f2…d94ed0</div>
       <a href="#architecture" class="btn btn-o">See Architecture</a>
     </div>
   </div>
@@ -1297,6 +1298,37 @@ h1 { animation: stepIn 0.15s linear 0.1s both; }
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════
+     3b. EXPLICITLY OUT OF SCOPE (zero-overclaim)
+     ═══════════════════════════════════════════════════════════ -->
+<section class="divider">
+  <div class="container">
+    <div class="s-label">Explicitly Out of Scope</div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;">
+      <div style="background:var(--bg);padding:1.5rem;">
+        <div style="font-family:var(--mono);font-size:0.65rem;color:var(--red);margin-bottom:0.4rem;opacity:0.7;">// HARDWARE</div>
+        <div style="font-size:0.82rem;font-weight:600;margin-bottom:0.3rem;">Hardware faults</div>
+        <div style="font-size:0.78rem;color:var(--gray-300);line-height:1.55;">Software fail-safes do not mitigate cosmic rays or silicon errors. Hardware redundancy (watchdogs, lockstep, diverse redundancy) remains a deployment obligation.</div>
+      </div>
+      <div style="background:var(--bg);padding:1.5rem;">
+        <div style="font-family:var(--mono);font-size:0.65rem;color:var(--red);margin-bottom:0.4rem;opacity:0.7;">// HOST</div>
+        <div style="font-size:0.82rem;font-weight:600;margin-bottom:0.3rem;">Host compromise</div>
+        <div style="font-size:0.78rem;color:var(--gray-300);line-height:1.55;">MGOS assumes an uncompromised host OS (Ring-0 / root integrity). Host hardening is a deployment obligation.</div>
+      </div>
+      <div style="background:var(--bg);padding:1.5rem;">
+        <div style="font-family:var(--mono);font-size:0.65rem;color:var(--red);margin-bottom:0.4rem;opacity:0.7;">// ALIGNMENT</div>
+        <div style="font-size:0.82rem;font-weight:600;margin-bottom:0.3rem;">AI alignment / truth evaluation</div>
+        <div style="font-size:0.78rem;color:var(--gray-300);line-height:1.55;">MGOS enforces bitwise execution authorization. It does not evaluate semantic truth or ethical alignment.</div>
+      </div>
+      <div style="background:var(--bg);padding:1.5rem;">
+        <div style="font-family:var(--mono);font-size:0.65rem;color:var(--red);margin-bottom:0.4rem;opacity:0.7;">// CROSS-PLATFORM</div>
+        <div style="font-size:0.82rem;font-weight:600;margin-bottom:0.3rem;">Cross-platform bitwise identity</div>
+        <div style="font-size:0.78rem;color:var(--gray-300);line-height:1.55;">Determinism is guaranteed under a pinned toolchain/environment (A1–A2), not across different OS/architectures.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
      4. ARCHITECTURE — Layered diagram
      ═══════════════════════════════════════════════════════════ -->
 <section class="divider" id="architecture">
@@ -1468,6 +1500,7 @@ h1 { animation: stepIn 0.15s linear 0.1s both; }
           <p>Generate a self-contained verification package: MANIFEST.txt, SHA256SUMS.txt, VERIFY_BUNDLE.sh, decision logs. Third-party replayable.</p>
         </div>
         <div class="platform-note">Desktop app: macOS (current) · Windows (planned). Kernel (deployment): macOS (current) · Linux build available under evaluation agreement · Docker packaging planned.</div>
+        <div class="platform-note" style="margin-top:0.5rem;">System requirements (eval): macOS 13+ · ARM64 (Apple Silicon) or x86_64 · no external dependencies for bundle verification (offline). ~50 MB disk.</div>
       </div>
     </div>
   </div>
@@ -1653,7 +1686,7 @@ h1 { animation: stepIn 0.15s linear 0.1s both; }
       <div class="eval-step">
         <div class="eval-num">02</div>
         <div class="eval-title">NDA + Package</div>
-        <div class="eval-desc">Short NDA (yours or ours). You receive: binary, evidence bundle, integration guide, PoC checklist.</div>
+        <div class="eval-desc">Short mutual NDA (yours or ours). Verified evaluation bundle provisioned securely within 24h of NDA execution.</div>
       </div>
       <div class="eval-step">
         <div class="eval-num">03</div>
@@ -1777,6 +1810,16 @@ h1 { animation: stepIn 0.15s linear 0.1s both; }
       <h2>Evidence-first security posture.</h2>
       <p>MGOS does not claim compliance with specific standards. Instead, it provides the evidence artifacts that compliance processes require: deterministic behavior logs, hash-verified decision chains, bounded-time execution proofs, and replayable test suites.</p>
       <p>If you discover a vulnerability in MGOS, report it to <a href="mailto:security@mgos.io" class="security-link">security@mgos.io</a> with subject "Security Disclosure." Response within 72 hours.</p>
+      
+      <!-- Threat model anchor -->
+      <div style="margin-top:1.5rem;padding:1.25rem;background:var(--bg-raised);border:1px solid var(--border);border-radius:6px;">
+        <div style="font-family:var(--mono);font-size:0.65rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--gray-500);margin-bottom:0.75rem;">Threat model anchor</div>
+        <div style="font-size:0.78rem;color:var(--gray-300);line-height:1.7;">
+          <strong style="color:var(--red);opacity:0.8;">Fail-open is architecturally forbidden:</strong> if MGOS is unavailable, upstream must default to BLOCK/STOP.<br>
+          <strong style="color:var(--gray-100);">DoS against MGOS process</strong> must be treated as loss of authorization (safe stop).<br>
+          <strong style="color:var(--gray-100);">Host compromise and hardware faults</strong> are out of scope; mitigation is a deployment obligation.
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -1837,6 +1880,8 @@ h1 { animation: stepIn 0.15s linear 0.1s both; }
         <div class="policy-tag">Legal / Licensing</div>
         <h3>Evaluation-only access</h3>
         <p>All software is provided under proprietary license. Evaluation copies are distributed under NDA with no implied license to deploy, redistribute, or reverse-engineer. No warranty of fitness. Limitation of liability applies. Full terms provided with evaluation package.</p>
+        <p style="margin-top:0.6rem;font-size:0.78rem;color:var(--gray-300);"><strong style="color:var(--white);">Engagement model:</strong> 1) Offline Evaluation (NDA) → 2) Integration Pilot (Staging) → 3) Production Deployment License.</p>
+        <p style="font-size:0.78rem;color:var(--gray-500);"><strong style="color:var(--gray-300);">Eval TTL:</strong> Evaluation access is time-limited by agreement (typically 30 days), restricted to offline verification and pilot integration. No implied deployment license.</p>
       </div>
       <div class="policy-block">
         <div class="policy-tag">Ethics / Safety Posture</div>
@@ -1863,10 +1908,10 @@ h1 { animation: stepIn 0.15s linear 0.1s both; }
         <p>MGOS is available for technology licensing, integration partnerships, and joint research. If you build guardrails, safety systems, or AI governance platforms — and need a deterministic enforcement layer underneath — get in touch.</p>
         <a href="mailto:officecontact@mgos.io" class="contact-email">officecontact@mgos.io</a>
         <div class="contact-types">
-          → Technology licensing<br>
-          → Integration partnership<br>
-          → Research collaboration<br>
-          → Evaluation access
+          → Sales / Evaluation: <a href="mailto:eval@mgos.io" style="color:var(--gray-300);text-decoration:none;">eval@mgos.io</a><br>
+          → Security disclosure: <a href="mailto:security@mgos.io" style="color:var(--gray-300);text-decoration:none;">security@mgos.io</a><br>
+          → Licensing / Legal: <a href="mailto:officecontact@mgos.io" style="color:var(--gray-300);text-decoration:none;">officecontact@mgos.io</a><br>
+          → Research collaboration: <a href="mailto:officecontact@mgos.io" style="color:var(--gray-300);text-decoration:none;">officecontact@mgos.io</a>
         </div>
       </div>
       <div class="poc-box">
