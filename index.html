@@ -1046,8 +1046,8 @@ h1 { animation: fadeUp 0.5s ease-out 0.2s both; }
   <div class="nav-links">
     <a href="#architecture">Architecture</a>
     <a href="#evidence">Evidence</a>
-    <a href="#faq">FAQ</a>
     <a href="#evaluate">Evaluate</a>
+    <a href="#faq">FAQ</a>
     <a href="#contact" class="nav-cta">Contact →</a>
   </div>
 </nav>
@@ -1063,7 +1063,7 @@ h1 { animation: fadeUp 0.5s ease-out 0.2s both; }
     
     <div class="hero-promises">
       <span class="promise"><span class="dot"></span> Determinism — identical inputs → identical outputs</span>
-      <span class="promise"><span class="dot"></span> Fail-safe — contradiction → BLOCK</span>
+      <span class="promise"><span class="dot"></span> Fail-safe — contradiction → BLOCK/STOP</span>
       <span class="promise"><span class="dot"></span> Termination — bounded-time under explicit input caps</span>
     </div>
     
@@ -1082,7 +1082,7 @@ h1 { animation: fadeUp 0.5s ease-out 0.2s both; }
      ═══════════════════════════════════════════════════════════ -->
 <section class="divider">
   <div class="container">
-    <div class="s-label">Verified Metrics</div>
+    <div class="s-label">Verified Metrics (pinned, reproducible)</div>
     <div class="metrics-strip">
       <div class="metric">
         <div class="metric-val">80+</div>
@@ -1102,6 +1102,7 @@ h1 { animation: fadeUp 0.5s ease-out 0.2s both; }
       </div>
     </div>
     <div class="metrics-note">Data from internal CI pipeline · Feb–Mar 2026 · pinned CORE_PIN=337d69f71970… · full run logs included in the verified evidence bundle</div>
+    <div class="metrics-note" style="color:var(--gray-500);">CI runs = verified pipeline executions producing hash-pinned artifacts under CORE_PIN.</div>
     <div class="metrics-note" style="color:var(--gray-500);">Verified gates: A0 integrity · A5 determinism · S1/S2 fail-safe · 96 load · 97 dirty — see evidence bundle.</div>
   </div>
 </section>
@@ -1172,12 +1173,12 @@ h1 { animation: fadeUp 0.5s ease-out 0.2s both; }
      ═══════════════════════════════════════════════════════════ -->
 <section class="divider">
   <div class="container">
-    <div class="s-label">Formal Properties</div>
+    <div class="s-label">Formal Properties (testable, falsifiable)</div>
     <div class="props-grid">
       <div class="prop">
         <div class="prop-icon">// TERM</div>
         <h3>Termination</h3>
-        <p>Bounded iteration with fixed upper limits. No recursion. No unbounded loops. Decision completes in bounded time under explicit input caps. Testable: instrument wall-clock; verify ceiling holds across input sizes.</p>
+        <p>Bounded iteration with fixed upper limits. No recursion. No unbounded loops. Decision completes in bounded time under explicit input caps. Testable: instrument wall-clock; verify ceiling holds across input sizes. Timeout is a watchdog flag for deployment cap violations; it is not a normal execution path under stated input caps.</p>
       </div>
       <div class="prop">
         <div class="prop-icon">// SAFE</div>
@@ -1203,7 +1204,7 @@ h1 { animation: fadeUp 0.5s ease-out 0.2s both; }
      ═══════════════════════════════════════════════════════════ -->
 <section class="divider" id="architecture">
   <div class="container">
-    <div class="s-label">Layered Architecture</div>
+    <div class="s-label">Reference Architecture (L0–L5)</div>
     <div class="arch-stack">
       <div class="arch-row ref">
         <span class="arch-id">Layer 0</span>
@@ -1251,7 +1252,7 @@ h1 { animation: fadeUp 0.5s ease-out 0.2s both; }
      ═══════════════════════════════════════════════════════════ -->
 <section class="divider" id="product">
   <div class="container">
-    <div class="s-label">Product</div>
+    <div class="s-label">Product (evaluation-first)</div>
     <div class="product-grid">
       <div class="product-screenshot">
         <div style="background:#111;border-radius:8px;padding:0;overflow:hidden;border:1px solid rgba(255,255,255,0.06);">
@@ -1301,187 +1302,11 @@ h1 { animation: fadeUp 0.5s ease-out 0.2s both; }
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════
-     6. EVIDENCE & VERIFICATION
-     ═══════════════════════════════════════════════════════════ -->
-<section class="divider" id="evidence">
-  <div class="container">
-    <div class="s-label">Evidence & Verification</div>
-    
-    <div class="evidence-grid">
-      <div class="evidence-access">
-        <h3>Access-Controlled Delivery</h3>
-        <p>Evidence bundles are provided under evaluation agreement. This protects both the integrity of the verification process and the IP of the technology.</p>
-        <div class="artifact-list">
-          <div class="artifact">
-            <span class="artifact-name">evidence_bundle.zip</span>
-            <span class="artifact-desc">decision logs + config snapshot</span>
-          </div>
-          <div class="artifact">
-            <span class="artifact-name">SHA256SUMS.txt</span>
-            <span class="artifact-desc">hash manifest for all artifacts</span>
-          </div>
-          <div class="artifact">
-            <span class="artifact-name">MANIFEST.txt</span>
-            <span class="artifact-desc">file inventory + descriptions</span>
-          </div>
-          <div class="artifact">
-            <span class="artifact-name">VERIFY_BUNDLE.sh</span>
-            <span class="artifact-desc">one-command integrity check</span>
-          </div>
-        </div>
-        <a href="mailto:eval@mgos.io?subject=MGOS%20Sentinel%20—%20Evaluation%20Access%20Request" class="btn btn-o" style="display:inline-flex;">Request Access →</a>
-      </div>
-
-      <!-- How to verify in 5 minutes (moved up) -->
-      <div style="padding:1.5rem;background:var(--bg-raised);border:1px solid var(--border);border-radius:6px;">
-        <h4 style="font-family:var(--mono);font-size:0.72rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--gray-300);margin-bottom:1rem;">How to verify in 5 minutes</h4>
-        <div style="display:flex;flex-direction:column;gap:0.75rem;">
-          <div>
-            <span style="font-family:var(--mono);font-size:0.6rem;color:var(--accent);">Step 1 · 30s</span>
-            <span style="font-size:0.75rem;color:var(--gray-300);margin-left:0.5rem;">Run <code style="background:var(--bg);padding:0.15rem 0.35rem;border-radius:2px;font-family:var(--mono);font-size:0.68rem;color:var(--accent);">./VERIFY_BUNDLE.sh</code></span>
-          </div>
-          <div>
-            <span style="font-family:var(--mono);font-size:0.6rem;color:var(--accent);">Step 2 · 1 min</span>
-            <span style="font-size:0.75rem;color:var(--gray-300);margin-left:0.5rem;">Launch kernel, run determinism replay (100 frames)</span>
-          </div>
-          <div>
-            <span style="font-family:var(--mono);font-size:0.6rem;color:var(--accent);">Step 3 · 2 min</span>
-            <span style="font-size:0.75rem;color:var(--gray-300);margin-left:0.5rem;">Inject conflict frames, confirm BLOCK on every injection</span>
-          </div>
-          <div>
-            <span style="font-family:var(--mono);font-size:0.6rem;color:var(--accent);">Step 4 · 1 min</span>
-            <span style="font-size:0.75rem;color:var(--gray-300);margin-left:0.5rem;">Export evidence, run VERIFY_BUNDLE.sh on the exported bundle</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Integrity Contract (full width, below grid) -->
-    <div class="evidence-contract" style="margin-top:2rem;">
-      <h3>Integrity Contract</h3>
-      <div class="contract-line"><span class="mark">✓</span> Every file in the bundle is listed in MANIFEST.txt</div>
-      <div class="contract-line"><span class="mark">✓</span> Every file hash matches SHA256SUMS.txt</div>
-      <div class="contract-line"><span class="mark">✓</span> VERIFY_BUNDLE.sh reproduces verification without external dependencies</div>
-      <div class="contract-line"><span class="mark">✓</span> Decision logs are replayable: same input → same output → same hash</div>
-      <div class="contract-line"><span class="mark">✓</span> No opaque evidence artifacts without provenance; binaries (if included) are hash-pinned and accompanied by build notes</div>
-      <div class="contract-line"><span class="mark">✓</span> Bundle is self-contained: no network access required for verification</div>
-    </div>
-
-    <!-- Claims → Evidence Trust Bar -->
-    <div class="claims-bar">
-      <h4>Claims → Evidence (verified in bundle)</h4>
-      <div class="claim-row">
-        <span class="claim-tag">PASS</span>
-        <span class="claim-id">A0 Integrity</span>
-        <span class="claim-text">Offline bundle verification (MANIFEST/SHA/VERIFY).</span>
-      </div>
-      <div class="claim-row">
-        <span class="claim-tag">PASS</span>
-        <span class="claim-id">A5 Determinism</span>
-        <span class="claim-text">Replay → same input ⇒ same output ⇒ same hash.</span>
-      </div>
-      <div class="claim-row">
-        <span class="claim-tag">PASS</span>
-        <span class="claim-id">S1/S2 Fail-safe</span>
-        <span class="claim-text">Conflict/fault ⇒ 0 ALLOW (BLOCK/STOP only).</span>
-      </div>
-      <div class="claim-row">
-        <span class="claim-tag">PASS</span>
-        <span class="claim-id">Gate 96 Load</span>
-        <span class="claim-text">Decisions stable under CPU load (A/B comparison).</span>
-      </div>
-      <div class="claim-row">
-        <span class="claim-tag">PASS</span>
-        <span class="claim-id">Gate 97 Dirty</span>
-        <span class="claim-text">Dirty frames ⇒ deterministic return codes, no crashes.</span>
-      </div>
-      <div class="claims-scope">Gate IDs correspond to the evidence bundle report and are reproducible under the pinned environment.<br>Scope: determinism/evidence claims are scoped to a pinned environment (A1–A2); cross-platform bitwise identity is out of scope.<br>Receipts: tamper-evident (hash-chain detects edits), not tamper-resistant and without external anchoring by default.</div>
-    </div>
-
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════════
-     6c. FAQ — Technical objections answered
-     ═══════════════════════════════════════════════════════════ -->
-<section class="divider" id="faq">
-  <div class="container">
-    <div class="s-label">FAQ</div>
-    <div class="faq-list">
-      <div class="faq-item">
-        <div class="faq-q">What is MGOS, in one sentence?</div>
-        <div class="faq-a">A deterministic runtime authorization kernel (veto layer) between inference and execution that outputs ALLOW / BLOCK / STOP and emits a hash-verified receipt.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q">How is this different from a rules engine?</div>
-        <div class="faq-a">Rules engines define business logic. MGOS enforces an execution boundary with hard properties: determinism, bounded time, fail-safe on contradiction, and replayable evidence artifacts.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q">What is the latency overhead?</div>
-        <div class="faq-a">Bounded and measured under explicit input caps. Exact figures are provided in the evidence bundle (perf microbench + logs). Measurement conditions are pinned and declared.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q">What happens if MGOS crashes?</div>
-        <div class="faq-a">Deployment should treat MGOS as authoritative: if the guard is unavailable, the system must default to fail-safe (BLOCK/STOP). This is a deployment requirement, not a best-effort behavior.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q">Do you support OPA/Rego or custom policy languages?</div>
-        <div class="faq-a">MGOS is policy-agnostic. Policy configuration is external to the kernel. Integration can map OPA/Rego decisions into the MGOS decision_frame contract.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q">Is MGOS "AI safety" / alignment?</div>
-        <div class="faq-a">No. MGOS does not evaluate truth or align models. It enforces deterministic runtime authorization and produces audit evidence.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q">Does MGOS require network access or telemetry?</div>
-        <div class="faq-a">No. The kernel operates entirely offline. Verification and evidence bundles are self-contained.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q">What platforms do you support?</div>
-        <div class="faq-a">Desktop evaluation app: macOS (current), Windows (planned). Kernel (CLI/SDK): macOS, Linux (build available under eval agreement), Docker packaging planned.</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════════
-     6b. EVALUATION PATH — What happens when you request access
-     ═══════════════════════════════════════════════════════════ -->
-<section class="divider" id="evaluate">
-  <div class="container">
-    <div class="s-label">Evaluation Path</div>
-    <p style="color:var(--gray-300);font-size:0.88rem;margin-bottom:2rem;max-width:600px;">What happens after you get in touch. No sales funnel, no demo theater — you get a real binary and real tests.</p>
-    <div class="eval-path">
-      <div class="eval-step">
-        <div class="eval-num">01</div>
-        <div class="eval-title">Inquiry</div>
-        <div class="eval-desc">Email us. Tell us your target boundary, test expectations, and threat model scope.</div>
-      </div>
-      <div class="eval-step">
-        <div class="eval-num">02</div>
-        <div class="eval-title">NDA + Package</div>
-        <div class="eval-desc">Short NDA (yours or ours). You receive: binary, evidence bundle, integration guide, PoC checklist.</div>
-      </div>
-      <div class="eval-step">
-        <div class="eval-num">03</div>
-        <div class="eval-title">Run Tests</div>
-        <div class="eval-desc">16 mandatory checks: 14 runtime tests (ctest preset) + 2 integrity checks (MANIFEST/SHA/VERIFY). Four suites: determinism, fail-safe, termination, evidence.</div>
-      </div>
-      <div class="eval-step">
-        <div class="eval-num">04</div>
-        <div class="eval-title">Review + Licensing</div>
-        <div class="eval-desc">Review call. If all tests pass: licensing discussion. If not: we explain what failed and why.</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════════
      7. INTEGRATION
      ═══════════════════════════════════════════════════════════ -->
 <section class="divider" id="integration">
   <div class="container">
-    <div class="s-label">Integration</div>
+    <div class="s-label">Integration (minimal contract)</div>
     <div class="integration-content">
       <h2>Minimal contract for integration partners.</h2>
       <p style="color:var(--gray-300);font-size:0.9rem;margin-bottom:1.5rem;">MGOS sits between your inference stack and your execution layer. It receives a decision frame, returns ALLOW, BLOCK, or STOP, and emits a receipt.</p>
@@ -1540,11 +1365,144 @@ h1 { animation: fadeUp 0.5s ease-out 0.2s both; }
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════
+     6. EVIDENCE & VERIFICATION
+     ═══════════════════════════════════════════════════════════ -->
+<section class="divider" id="evidence">
+  <div class="container">
+    <div class="s-label">Evidence Bundle (offline-verifiable)</div>
+    
+    <div class="evidence-grid">
+      <div class="evidence-access">
+        <h3>Access-Controlled Delivery</h3>
+        <p>Evidence bundles are provided under evaluation agreement. This protects both the integrity of the verification process and the IP of the technology.</p>
+        <div class="artifact-list">
+          <div class="artifact">
+            <span class="artifact-name">evidence_bundle.zip</span>
+            <span class="artifact-desc">decision logs + config snapshot</span>
+          </div>
+          <div class="artifact">
+            <span class="artifact-name">SHA256SUMS.txt</span>
+            <span class="artifact-desc">hash manifest for all artifacts</span>
+          </div>
+          <div class="artifact">
+            <span class="artifact-name">MANIFEST.txt</span>
+            <span class="artifact-desc">file inventory + descriptions</span>
+          </div>
+          <div class="artifact">
+            <span class="artifact-name">VERIFY_BUNDLE.sh</span>
+            <span class="artifact-desc">one-command integrity check</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- How to verify in 5 minutes (moved up) -->
+      <div style="padding:1.5rem;background:var(--bg-raised);border:1px solid var(--border);border-radius:6px;">
+        <h4 style="font-family:var(--mono);font-size:0.72rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--gray-300);margin-bottom:1rem;">How to verify in 5 minutes</h4>
+        <div style="display:flex;flex-direction:column;gap:0.75rem;">
+          <div>
+            <span style="font-family:var(--mono);font-size:0.6rem;color:var(--accent);">Step 1 · 30s</span>
+            <span style="font-size:0.75rem;color:var(--gray-300);margin-left:0.5rem;">Run <code style="background:var(--bg);padding:0.15rem 0.35rem;border-radius:2px;font-family:var(--mono);font-size:0.68rem;color:var(--accent);">./VERIFY_BUNDLE.sh</code></span>
+          </div>
+          <div>
+            <span style="font-family:var(--mono);font-size:0.6rem;color:var(--accent);">Step 2 · 1 min</span>
+            <span style="font-size:0.75rem;color:var(--gray-300);margin-left:0.5rem;">Start worker (kernel), run determinism replay (100 frames)</span>
+          </div>
+          <div>
+            <span style="font-family:var(--mono);font-size:0.6rem;color:var(--accent);">Step 3 · 2 min</span>
+            <span style="font-size:0.75rem;color:var(--gray-300);margin-left:0.5rem;">Inject conflict frames, confirm BLOCK on every injection</span>
+          </div>
+          <div>
+            <span style="font-family:var(--mono);font-size:0.6rem;color:var(--accent);">Step 4 · 1 min</span>
+            <span style="font-size:0.75rem;color:var(--gray-300);margin-left:0.5rem;">Export evidence, run VERIFY_BUNDLE.sh on the exported bundle</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Integrity Contract (full width, below grid) -->
+    <div class="evidence-contract" style="margin-top:2rem;">
+      <h3>Integrity Contract</h3>
+      <div class="contract-line"><span class="mark">✓</span> Every file in the bundle is listed in MANIFEST.txt</div>
+      <div class="contract-line"><span class="mark">✓</span> Every file hash matches SHA256SUMS.txt</div>
+      <div class="contract-line"><span class="mark">✓</span> VERIFY_BUNDLE.sh reproduces verification without external dependencies</div>
+      <div class="contract-line"><span class="mark">✓</span> Decision logs are replayable: same input → same output → same hash</div>
+      <div class="contract-line"><span class="mark">✓</span> No opaque evidence artifacts without provenance; binaries (if included) are hash-pinned and accompanied by build notes</div>
+      <div class="contract-line"><span class="mark">✓</span> Bundle is self-contained: no network access required for verification</div>
+    </div>
+
+    <!-- Claims → Evidence Trust Bar -->
+    <div class="claims-bar">
+      <h4>Claims → Evidence (verified in bundle)</h4>
+      <div class="claim-row">
+        <span class="claim-tag">PASS</span>
+        <span class="claim-id">A0 Integrity</span>
+        <span class="claim-text">Offline bundle verification (MANIFEST/SHA/VERIFY).</span>
+      </div>
+      <div class="claim-row">
+        <span class="claim-tag">PASS</span>
+        <span class="claim-id">A5 Determinism</span>
+        <span class="claim-text">Replay → same input ⇒ same output ⇒ same hash.</span>
+      </div>
+      <div class="claim-row">
+        <span class="claim-tag">PASS</span>
+        <span class="claim-id">S1/S2 Fail-safe</span>
+        <span class="claim-text">Conflict/fault ⇒ 0 ALLOW (BLOCK/STOP only).</span>
+      </div>
+      <div class="claim-row">
+        <span class="claim-tag">PASS</span>
+        <span class="claim-id">Gate 96 Load</span>
+        <span class="claim-text">Decisions stable under CPU load (A/B comparison).</span>
+      </div>
+      <div class="claim-row">
+        <span class="claim-tag">PASS</span>
+        <span class="claim-id">Gate 97 Dirty</span>
+        <span class="claim-text">Dirty frames ⇒ deterministic return codes, no crashes.</span>
+      </div>
+      <div class="claims-scope">Gate IDs correspond to the evidence bundle report and are reproducible under the pinned environment.<br>Scope: determinism/evidence claims are scoped to a pinned environment (A1–A2); cross-platform bitwise identity is out of scope.<br>Receipts: tamper-evident (hash-chain detects edits), not tamper-resistant and without external anchoring by default.</div>
+    </div>
+
+    <div style="margin-top:2rem;text-align:center;"><a href="mailto:eval@mgos.io?subject=MGOS%20Sentinel%20—%20Evaluation%20Access%20Request" class="btn btn-w">Request Evaluation Access →</a></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     6b. EVALUATION PATH — What happens when you request access
+     ═══════════════════════════════════════════════════════════ -->
+<section class="divider" id="evaluate">
+  <div class="container">
+    <div class="s-label">Evaluation Path (predictable, measurable)</div>
+    <p style="color:var(--gray-300);font-size:0.88rem;margin-bottom:2rem;max-width:600px;">What happens after you get in touch. No sales funnel, no demo theater — you get a real binary and real tests.</p>
+    <div class="eval-path">
+      <div class="eval-step">
+        <div class="eval-num">01</div>
+        <div class="eval-title">Inquiry</div>
+        <div class="eval-desc">Email us. Tell us your target boundary, test expectations, and threat model scope.</div>
+      </div>
+      <div class="eval-step">
+        <div class="eval-num">02</div>
+        <div class="eval-title">NDA + Package</div>
+        <div class="eval-desc">Short NDA (yours or ours). You receive: binary, evidence bundle, integration guide, PoC checklist.</div>
+      </div>
+      <div class="eval-step">
+        <div class="eval-num">03</div>
+        <div class="eval-title">Run Tests</div>
+        <div class="eval-desc">16 mandatory checks: 14 runtime tests (ctest preset) + 2 integrity checks (MANIFEST/SHA/VERIFY). Four suites: determinism, fail-safe, termination, evidence.</div>
+      </div>
+      <div class="eval-step">
+        <div class="eval-num">04</div>
+        <div class="eval-title">Review + Licensing</div>
+        <div class="eval-desc">Review call. If all tests pass: licensing discussion. If not: we explain what failed and why.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
      8. COMPARE
      ═══════════════════════════════════════════════════════════ -->
 <section class="divider" id="compare">
   <div class="container">
-    <div class="s-label">Comparison — Formal Properties</div>
+    <div class="s-label">Comparison (what differs in practice)</div>
     <table class="comp-table">
       <thead>
         <tr>
@@ -1595,6 +1553,49 @@ h1 { animation: fadeUp 0.5s ease-out 0.2s both; }
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════
+     6c. FAQ — Technical objections answered
+     ═══════════════════════════════════════════════════════════ -->
+<section class="divider" id="faq">
+  <div class="container">
+    <div class="s-label">FAQ (engineering objections)</div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q">What is MGOS, in one sentence?</div>
+        <div class="faq-a">A deterministic runtime authorization kernel (veto layer) between inference and execution that outputs ALLOW / BLOCK / STOP and emits a hash-verified receipt.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">How is this different from a rules engine?</div>
+        <div class="faq-a">Rules engines define business logic. MGOS enforces an execution boundary with hard properties: determinism, bounded time, fail-safe on contradiction, and replayable evidence artifacts.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What is the latency overhead?</div>
+        <div class="faq-a">Bounded and measured under explicit input caps. Exact figures are provided in the evidence bundle (perf microbench + logs). Measurement conditions are pinned and declared.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What happens if MGOS crashes?</div>
+        <div class="faq-a">Deployment must treat MGOS as authoritative: if the guard is unavailable, the system must default to fail-safe (BLOCK/STOP). Hardware faults can bypass software fail-safes. Hardware redundancy (watchdogs, lockstep, diverse redundancy) remains a deployment obligation.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Do you support OPA/Rego or custom policy languages?</div>
+        <div class="faq-a">MGOS is policy-agnostic. Policy configuration is external to the kernel. Integration can map OPA/Rego decisions into the MGOS decision_frame contract.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Is MGOS "AI safety" / alignment?</div>
+        <div class="faq-a">No. MGOS does not evaluate truth or align models. It enforces deterministic runtime authorization and produces audit evidence.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Does MGOS require network access or telemetry?</div>
+        <div class="faq-a">No. The kernel operates entirely offline. Verification and evidence bundles are self-contained.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">What platforms do you support?</div>
+        <div class="faq-a">Desktop evaluation app: macOS (current), Windows (planned). Kernel (CLI/SDK): macOS, Linux (build available under eval agreement), Docker packaging planned.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
      9. SECURITY
      ═══════════════════════════════════════════════════════════ -->
 <section class="divider">
@@ -1609,37 +1610,11 @@ h1 { animation: fadeUp 0.5s ease-out 0.2s both; }
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════
-     9b. POLICIES — Legal / Ethics / Privacy
-     ═══════════════════════════════════════════════════════════ -->
-<section class="divider">
-  <div class="container">
-    <div class="s-label">Policies</div>
-    <div class="policies-grid">
-      <div class="policy-block">
-        <div class="policy-tag">Legal / Licensing</div>
-        <h3>Evaluation-only access</h3>
-        <p>All software is provided under proprietary license. Evaluation copies are distributed under NDA with no implied license to deploy, redistribute, or reverse-engineer. No warranty of fitness. Limitation of liability applies. Full terms provided with evaluation package.</p>
-      </div>
-      <div class="policy-block">
-        <div class="policy-tag">Ethics / Safety Posture</div>
-        <h3>Reduces harm. Does not transfer responsibility.</h3>
-        <p>MGOS is a technical enforcement mechanism. It blocks unauthorized execution — it does not make moral judgments, attribute blame, or replace human oversight. Deploying MGOS does not absolve the operator of responsibility for their system's behavior.</p>
-      </div>
-      <div class="policy-block">
-        <div class="policy-tag">Privacy</div>
-        <h3>Minimal footprint. No telemetry by default.</h3>
-        <p>MGOS does not phone home, collect usage data, or require network access during operation. Decision logs remain on-premises. Evidence bundles are self-contained. Log verbosity and retention are configurable by the operator.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════════
      10. ABOUT — Origin & trust
      ═══════════════════════════════════════════════════════════ -->
 <section class="divider">
   <div class="container">
-    <div class="s-label">About</div>
+    <div class="s-label">About (origin and posture)</div>
     <div class="about-content">
       <p>MGOS is developed by <strong style="color:var(--white);">Piotr Łukasz Jurkiewicz, PhD</strong>, focused on deterministic runtime enforcement for safety-critical systems.</p>
       <p>The project follows an evidence-first posture: every claim is backed by reproducible tests and hash-verified artifacts. No marketing numbers without measurement conditions. No compliance claims without evidence.</p>
@@ -1653,7 +1628,7 @@ h1 { animation: fadeUp 0.5s ease-out 0.2s both; }
      ═══════════════════════════════════════════════════════════ -->
 <section class="divider">
   <div class="container">
-    <div class="s-label">Roadmap</div>
+    <div class="s-label">Roadmap (deliverables + evidence parity)</div>
     <div class="roadmap-strip">
       <div class="rm-item">
         <div class="rm-status done">Shipped</div>
@@ -1674,6 +1649,32 @@ h1 { animation: fadeUp 0.5s ease-out 0.2s both; }
         <div class="rm-status plan">Planned</div>
         <h4>Windows + Remote CI</h4>
         <p>Windows desktop app, remote CI runner, SDK bindings</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     9b. POLICIES — Legal / Ethics / Privacy
+     ═══════════════════════════════════════════════════════════ -->
+<section class="divider">
+  <div class="container">
+    <div class="s-label">Policies (security, legal, ethics, privacy)</div>
+    <div class="policies-grid">
+      <div class="policy-block">
+        <div class="policy-tag">Legal / Licensing</div>
+        <h3>Evaluation-only access</h3>
+        <p>All software is provided under proprietary license. Evaluation copies are distributed under NDA with no implied license to deploy, redistribute, or reverse-engineer. No warranty of fitness. Limitation of liability applies. Full terms provided with evaluation package.</p>
+      </div>
+      <div class="policy-block">
+        <div class="policy-tag">Ethics / Safety Posture</div>
+        <h3>Reduces harm. Does not transfer responsibility.</h3>
+        <p>MGOS is a technical enforcement mechanism. It blocks unauthorized execution — it does not make moral judgments, attribute blame, or replace human oversight. Deploying MGOS does not absolve the operator of responsibility for their system's behavior.</p>
+      </div>
+      <div class="policy-block">
+        <div class="policy-tag">Privacy</div>
+        <h3>Minimal footprint. No telemetry by default.</h3>
+        <p>MGOS does not phone home, collect usage data, or require network access during operation. Decision logs remain on-premises. Evidence bundles are self-contained. Log verbosity and retention are configurable by the operator.</p>
       </div>
     </div>
   </div>
