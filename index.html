@@ -1095,7 +1095,7 @@ h1 { animation: stepIn 0.15s linear 0.1s both; }
     <a href="#evidence">Evidence</a>
     <a href="#evaluate">Evaluate</a>
     <a href="#faq">FAQ</a>
-    <a href="#contact" class="nav-cta">Contact →</a>
+    <a href="mailto:eval@mgos.io" class="nav-cta">Request Evaluation Bundle →</a>
   </div>
 </nav>
 
@@ -1105,22 +1105,33 @@ h1 { animation: stepIn 0.15s linear 0.1s both; }
 <section class="hero">
   <div class="container">
     <div class="hero-label">Deterministic veto kernel at the execution boundary</div>
-    <h1>AI proposes.<br><span class="acc">MGOS decides.</span></h1>
-    <p class="motto">MGOS — Minimal Gate for Operational Safety. Runtime authorization boundary between inference and execution.</p>
-    
+    <h1>AI proposes.<br><span class="acc">MGOS authorizes.</span></h1>
+    <p class="motto">MGOS — Minimal Gate for Operational Safety. Runtime <strong>authorization</strong> boundary between inference and execution.</p>
+
+    <div style="font-family:var(--mono);font-size:0.82rem;color:var(--accent);border-left:2px solid var(--accent);padding-left:1rem;margin:1.25rem 0 1.5rem;line-height:1.7;">
+      Authorization output: ALLOW / BLOCK / STOP + receipt.<br>
+      <span style="color:var(--gray-500);font-size:0.76rem;">Does not generate actions or evaluate truth — authorizes execution at the boundary.</span>
+    </div>
+
     <div class="hero-promises">
-      <span class="promise"><span class="dot"></span> Determinism — identical inputs → identical outputs</span>
-      <span class="promise"><span class="dot"></span> Fail-safe — contradiction → BLOCK/STOP</span>
-      <span class="promise"><span class="dot"></span> Termination — bounded-time under explicit input caps</span>
+      <span class="promise"><span class="dot"></span> Fail-safe — contradiction ⇒ BLOCK / STOP</span>
+      <span class="promise"><span class="dot"></span> Determinism — same input ⇒ same output / hash (pinned env)</span>
+      <span class="promise"><span class="dot"></span> Termination — bounded time under input caps</span>
     </div>
     
-    <div class="hero-not">Not a model. No training. No weights. No drift.</div>
-    <div style="font-family:var(--mono);font-size:0.65rem;color:var(--gray-700);margin-bottom:2rem;">Built by Piotr Łukasz Jurkiewicz, PhD — evidence-first infrastructure for execution authorization.</div>
-    
+    <div class="hero-not">Not a model. No training. No weights. No probabilistic output.</div>
     <div class="hero-actions">
-      <a href="mailto:officecontact@mgos.io?subject=MGOS%20Sentinel%20—%20One-Pager%20Request" class="btn btn-w">Download One-Pager (PDF) →</a>
-      <div style="font-family:var(--mono);font-size:0.55rem;color:var(--gray-700);margin-top:0.35rem;">v2 · 2026-03-05 · SHA256: f887b5f2…d94ed0</div>
-      <a href="#architecture" class="btn btn-o">See Architecture</a>
+      <a href="mailto:eval@mgos.io" class="btn btn-w">Request Evaluation Bundle →</a>
+      <a href="#architecture" style="font-family:var(--mono);font-size:0.72rem;color:var(--gray-500);text-decoration:none;padding:0.7rem 0.5rem;display:inline-block;">See Architecture ↓</a>
+    </div>
+    <div style="font-family:var(--mono);font-size:0.65rem;color:var(--gray-700);margin-top:0.75rem;">
+      Delivered under NDA · offline-verifiable · MANIFEST/SHA/VERIFY
+    </div>
+    <div style="font-family:var(--mono);font-size:0.65rem;color:var(--gray-700);margin-top:0.3rem;">
+      One-Pager v2 (document) · Kernel CORE_PIN 337d69f71970
+    </div>
+    <div style="font-family:var(--mono);font-size:0.65rem;color:var(--gray-500);margin-top:0.5rem;">
+      To get the bundle: boundary + platform + throughput target.
     </div>
   </div>
 </section>
@@ -1149,9 +1160,13 @@ h1 { animation: stepIn 0.15s linear 0.1s both; }
         <div class="metric-label">Model weights<br>in enforcement path</div>
       </div>
     </div>
-    <div class="metrics-note">Data from internal CI pipeline · Feb–Mar 2026 · pinned CORE_PIN=337d69f71970… · full run logs included in the verified evidence bundle</div>
-    <div class="metrics-note" style="color:var(--gray-500);">CI runs = verified pipeline executions producing hash-pinned artifacts under CORE_PIN.</div>
-    <div class="metrics-note" style="color:var(--gray-500);">Verified gates: A0 integrity · A5 determinism · S1/S2 fail-safe · 96 load · 97 dirty — see evidence bundle.</div>
+    <div class="metrics-note">Data from internal CI pipeline · Feb–Mar 2026 · pinned CORE_PIN=337d69f71970… · full run logs in evidence bundle.</div>
+    <div style="font-family:var(--mono);font-size:0.65rem;color:var(--gray-500);margin-top:0.6rem;line-height:2;">
+      <span style="color:var(--gray-300);">A0</span> Integrity — MANIFEST/SHA/VERIFY (offline)<br>
+      <span style="color:var(--gray-300);">A5</span> Determinism — replay hash match<br>
+      <span style="color:var(--gray-300);">S1/S2</span> Fail-safe — conflict ⇒ 0 ALLOW<br>
+      <span style="color:var(--gray-300);">Gate 96</span> Load stability &nbsp;·&nbsp; <span style="color:var(--gray-300);">Gate 97</span> Dirty-input handling
+    </div>
   </div>
 </section>
 
@@ -1164,7 +1179,7 @@ h1 { animation: stepIn 0.15s linear 0.1s both; }
       <div class="why-block">
         <div class="why-tag"><span class="dot-r"></span> Problem</div>
         <h2>Probabilistic inference is not deterministic execution authorization.</h2>
-        <p>When upstream sources conflict — sensors disagree, models hallucinate, channels go Byzantine — probabilistic guardrails average conflicting signals into a single output. That output can trigger unsafe execution. Content filters catch bad outputs. Nobody gates the actions.</p>
+        <p>When upstream sources conflict — sensors disagree, models hallucinate, channels go Byzantine — probabilistic guardrails average conflicting signals into a single output. That output can trigger unsafe execution. Most stacks gate <em>content</em>, not <em>execution</em>.</p>
       </div>
       <div class="why-block">
         <div class="why-tag"><span class="dot-g"></span> Solution</div>
@@ -1202,7 +1217,7 @@ h1 { animation: stepIn 0.15s linear 0.1s both; }
         <text x="530" y="84" text-anchor="middle" font-family="monospace" font-size="8" fill="#888">EXEC</text>
         
         <!-- Status labels -->
-        <text x="350" y="38" text-anchor="middle" font-family="monospace" font-size="7" fill="#555">TMR VOTE</text>
+        <text x="350" y="38" text-anchor="middle" font-family="monospace" font-size="7" fill="#555">consensus</text>
         
         <!-- Conflict state (red X on bridge) -->
         <g id="conflict-state">
@@ -1232,7 +1247,7 @@ h1 { animation: stepIn 0.15s linear 0.1s both; }
   <div class="container">
     <div class="s-label">Use Cases</div>
     <p style="color:var(--gray-300);font-size:0.88rem;margin-bottom:2rem;max-width:640px;">MGOS is an execution authorization boundary. It is most valuable where a probabilistic decision becomes a real-world action.</p>
-    <div class="cases-grid">
+    <div class="cases-grid" style="grid-template-columns:repeat(3,1fr)!important;">
       <div class="case">
         <div class="case-num">01</div>
         <h3>Autonomous Robotics / Drones</h3>
@@ -1249,20 +1264,16 @@ h1 { animation: stepIn 0.15s linear 0.1s both; }
       </div>
       <div class="case">
         <div class="case-num">03</div>
-        <h3>Financial Execution / Trading Automation</h3>
-        <div class="case-detail"><span>Boundary:</span> strategy output → order placement / risk system</div>
-        <div class="case-detail"><span>Failure mode:</span> diverging feeds, out-of-band orders, inconsistent risk constraints</div>
-        <div class="case-role">Blocks execution outside declared constraints. Produces deterministic receipts for compliance review.</div>
-      </div>
-      <div class="case">
-        <div class="case-num">04</div>
         <h3>Security Automation / Privileged Actions</h3>
         <div class="case-detail"><span>Boundary:</span> detection/LLM triage → destructive actions (quarantine, disable, kill-switch)</div>
         <div class="case-detail"><span>Failure mode:</span> tool-calling errors, inconsistent signals, adversarial prompts</div>
         <div class="case-role">Requires consensus across channels. Blocks on conflict. Keeps replayable evidence for incident review.</div>
       </div>
     </div>
-    <div style="font-family:var(--mono);font-size:0.68rem;color:var(--gray-500);margin-top:1rem;">MGOS does not replace policy engines; it enforces a deterministic authorization gate before execution.</div>
+    <div style="font-family:var(--mono);font-size:0.72rem;color:var(--gray-500);margin-top:1rem;">
+      MGOS does not replace policy engines; it enforces a deterministic authorization gate before execution.
+      &nbsp;·&nbsp; <a href="mailto:eval@mgos.io" style="color:var(--accent);">Finance automation + other boundaries →</a>
+    </div>
   </div>
 </section>
 
@@ -1272,37 +1283,45 @@ h1 { animation: stepIn 0.15s linear 0.1s both; }
 <section class="divider">
   <div class="container">
     <div class="s-label">Formal Properties (testable, falsifiable)</div>
-    <div class="props-grid">
-      <div class="prop">
-        <div class="prop-icon">// TERM</div>
-        <h3>Termination</h3>
-        <p>Bounded iteration with fixed upper limits. No recursion. No unbounded loops. Decision completes in bounded time under explicit input caps. Testable: instrument wall-clock; verify ceiling holds across input sizes. Timeout is a watchdog flag for deployment cap violations; it is not a normal execution path under stated input caps.</p>
-      </div>
-      <div class="prop">
-        <div class="prop-icon">// SAFE</div>
-        <h3>Fail-Safe</h3>
-        <p>Contradiction or non-majority across input channels triggers BLOCK — never pass-through, never averaged. Testable: inject conflicting frames; verify BLOCK on every conflict.</p>
-      </div>
-      <div class="prop">
-        <div class="prop-icon">// DET</div>
-        <h3>Determinism</h3>
-        <p>Identical inputs always produce identical outputs under pinned environment. Bitwise reproducible. Reproducibility is guaranteed under the pinned toolchain and declared input caps. Testable: replay input sequence; compare output hashes.</p>
-      </div>
-      <div class="prop">
-        <div class="prop-icon">// AUD</div>
-        <h3>Audit Receipts</h3>
-        <p>Every decision emits a hash-verified, tamper-evident receipt. Chain-linked witnesses. Replayable by third parties. Testable: verify receipt hash against decision log.</p>
-      </div>
-    </div>
+    <table style="width:100%;border-collapse:collapse;margin-top:0.5rem;">
+      <thead>
+        <tr>
+          <th style="font-family:var(--mono);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray-500);padding:0.75rem 1.25rem;text-align:left;border-bottom:1px solid var(--border-hover);font-weight:500;width:160px;">Property</th>
+          <th style="font-family:var(--mono);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray-500);padding:0.75rem 1.25rem;text-align:left;border-bottom:1px solid var(--border-hover);font-weight:500;">Falsifier / Test</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="font-family:var(--mono);font-size:0.82rem;color:var(--white);padding:0.9rem 1.25rem;border-bottom:1px solid var(--border);vertical-align:top;white-space:nowrap;">Termination</td>
+          <td style="font-size:0.82rem;color:var(--gray-300);padding:0.9rem 1.25rem;border-bottom:1px solid var(--border);line-height:1.6;">Bounded loops under input caps; falsified if any input causes non-termination. <em>Test: max-time ceiling in evidence bundle.</em></td>
+        </tr>
+        <tr>
+          <td style="font-family:var(--mono);font-size:0.82rem;color:var(--white);padding:0.9rem 1.25rem;border-bottom:1px solid var(--border);vertical-align:top;white-space:nowrap;">Fail-safe</td>
+          <td style="font-size:0.82rem;color:var(--gray-300);padding:0.9rem 1.25rem;border-bottom:1px solid var(--border);line-height:1.6;">Conflict or no-majority ⇒ BLOCK / STOP; falsified if any conflict yields ALLOW. <em>Test: injection suite in bundle.</em></td>
+        </tr>
+        <tr>
+          <td style="font-family:var(--mono);font-size:0.82rem;color:var(--white);padding:0.9rem 1.25rem;border-bottom:1px solid var(--border);vertical-align:top;white-space:nowrap;">Determinism</td>
+          <td style="font-size:0.82rem;color:var(--gray-300);padding:0.9rem 1.25rem;border-bottom:1px solid var(--border);line-height:1.6;">Same input ⇒ same output + hash under pinned environment; falsified if replay produces different hash. <em>Test: determinism replay in bundle.</em></td>
+        </tr>
+        <tr>
+          <td style="font-family:var(--mono);font-size:0.82rem;color:var(--white);padding:0.9rem 1.25rem;border-bottom:1px solid var(--border);vertical-align:top;white-space:nowrap;">Receipts</td>
+          <td style="font-size:0.82rem;color:var(--gray-300);padding:0.9rem 1.25rem;border-bottom:1px solid var(--border);line-height:1.6;">Hash-chain detects edits; falsified if modified receipt passes verification. Note: tamper-<em>evident</em> (detects edits), not tamper-<em>resistant</em> (no external anchoring by default). Receipt verification = hash-chain + bundle integrity (MANIFEST/SHA) — no external timestamp or blockchain. <em>Test: tamper test in bundle.</em></td>
+        </tr>
+        <tr>
+          <td style="font-family:var(--mono);font-size:0.82rem;color:var(--white);padding:0.9rem 1.25rem;border-bottom:none;vertical-align:top;white-space:nowrap;">Composition</td>
+          <td style="font-size:0.82rem;color:var(--gray-300);padding:0.9rem 1.25rem;border-bottom:none;line-height:1.6;">Wrapper integration does not weaken fail-safe; falsified if any wrapper path yields ALLOW on conflict. <em>Test: composition smoke test in bundle (wrapper ⊇ kernel guarantees).</em></td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════
-     3b. EXPLICITLY OUT OF SCOPE (zero-overclaim)
+     3b. EXPLICITLY OUT OF SCOPE / THREAT MODEL ANCHOR
      ═══════════════════════════════════════════════════════════ -->
 <section class="divider">
   <div class="container">
-    <div class="s-label">Explicitly Out of Scope</div>
+    <div class="s-label">Explicitly Out of Scope / Threat Model</div>
     <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;">
       <div style="background:var(--bg);padding:1.5rem;">
         <div style="font-family:var(--mono);font-size:0.65rem;color:var(--red);margin-bottom:0.4rem;opacity:0.7;">// HARDWARE</div>
@@ -1321,8 +1340,18 @@ h1 { animation: stepIn 0.15s linear 0.1s both; }
       </div>
       <div style="background:var(--bg);padding:1.5rem;">
         <div style="font-family:var(--mono);font-size:0.65rem;color:var(--red);margin-bottom:0.4rem;opacity:0.7;">// CROSS-PLATFORM</div>
-        <div style="font-size:0.82rem;font-weight:600;margin-bottom:0.3rem;">Cross-platform bitwise identity</div>
-        <div style="font-size:0.78rem;color:var(--gray-300);line-height:1.55;">Determinism is guaranteed under a pinned toolchain/environment (A1–A2), not across different OS/architectures.</div>
+        <div style="font-size:0.82rem;font-weight:600;margin-bottom:0.3rem;">Cross-platform WCET</div>
+        <div style="font-size:0.78rem;color:var(--gray-300);line-height:1.55;">WCET bounds are reported for the pinned evaluation environment (A1–A2). Cross-platform WCET is out of scope; operators must re-certify on target hardware.</div>
+      </div>
+    </div>
+
+    <!-- Threat model invariants (merged here, removed from Security section) -->
+    <div style="margin-top:1rem;padding:1.25rem 1.5rem;background:var(--bg-raised);border:1px solid var(--border);border-radius:6px;border-left:3px solid var(--red);">
+      <div style="font-family:var(--mono);font-size:0.65rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray-500);margin-bottom:0.75rem;">Architectural invariants</div>
+      <div style="font-size:0.82rem;color:var(--gray-300);line-height:1.8;">
+        <strong style="color:var(--red);opacity:0.85;">Fail-open is architecturally forbidden</strong> — the gate defaults to STOP on any unresolvable state.<br>
+        <strong style="color:var(--white);">DoS against MGOS process</strong> degrades to STOP (safe), assuming deployment treats MGOS unavailability as STOP.<br>
+        <strong style="color:var(--white);">Receipts are hash-verified and tamper-evident</strong>; compromising them requires access to the host environment (out of MGOS scope).
       </div>
     </div>
   </div>
@@ -1540,7 +1569,7 @@ h1 { animation: stepIn 0.15s linear 0.1s both; }
       <div class="workflow">
         <div class="wf-step"><span class="wf-num">01</span> AI inference produces a proposed action with channel evidence</div>
         <div class="wf-arrow">↓</div>
-        <div class="wf-step"><span class="wf-num">02</span> MGOS evaluates channels against policy — TMR (Triple Modular Redundancy) voting, deterministic selection</div>
+        <div class="wf-step"><span class="wf-num">02</span> MGOS evaluates channels against policy — deterministic consensus across input channels</div>
         <div class="wf-arrow">↓</div>
         <div class="wf-step"><span class="wf-num">03a</span> Majority agreement → ALLOW + receipt → actuator executes</div>
         <div class="wf-step"><span class="wf-num">03b</span> Conflict / no majority → BLOCK + receipt → safe stop</div>
@@ -1663,10 +1692,10 @@ h1 { animation: stepIn 0.15s linear 0.1s both; }
         <span class="claim-id">Gate 97 Dirty</span>
         <span class="claim-text">Dirty frames ⇒ deterministic return codes, no crashes.</span>
       </div>
-      <div class="claims-scope">Gate IDs correspond to the evidence bundle report and are reproducible under the pinned environment.<br>Scope: determinism/evidence claims are scoped to a pinned environment (A1–A2); cross-platform bitwise identity is out of scope.<br>Receipts: tamper-evident (hash-chain detects edits), not tamper-resistant and without external anchoring by default.</div>
+      <div class="claims-scope">Gate IDs correspond to the evidence bundle report and are reproducible under the pinned environment.<br>Scope: determinism/evidence claims are scoped to a pinned environment (A1–A2); cross-platform bitwise identity is out of scope.<br>Receipts: tamper-evident (hash-chain detects edits), not tamper-resistant and without external anchoring by default.<br>Receipt verification = hash-chain + bundle integrity (MANIFEST/SHA). No external anchoring by default.</div>
     </div>
 
-    <div style="margin-top:2rem;text-align:center;"><a href="mailto:eval@mgos.io?subject=MGOS%20Sentinel%20—%20Evaluation%20Access%20Request" class="btn btn-w">Request Evaluation Access →</a></div>
+    <div style="margin-top:2rem;text-align:center;"><a href="mailto:eval@mgos.io" class="btn btn-w">Request Evaluation Bundle →</a></div>
   </div>
 </section>
 
@@ -1697,6 +1726,19 @@ h1 { animation: stepIn 0.15s linear 0.1s both; }
         <div class="eval-num">04</div>
         <div class="eval-title">Review + Licensing</div>
         <div class="eval-desc">Review call. If all tests pass: licensing discussion. If not: we explain what failed and why.</div>
+      </div>
+    </div>
+
+    <!-- Qualifying questions -->
+    <div style="margin-top:2.5rem;padding:1.5rem 2rem;background:var(--bg-raised);border:1px solid var(--border);border-radius:6px;border-left:2px solid var(--accent);">
+      <div style="font-family:var(--mono);font-size:0.65rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray-500);margin-bottom:0.85rem;">To qualify your evaluation, include in your first email:</div>
+      <ol style="padding-left:1.25rem;">
+        <li style="font-size:0.85rem;color:var(--gray-300);padding:0.25rem 0;"><strong style="color:var(--white);">Target boundary</strong> — robotics / SCADA / finance / security automation / other</li>
+        <li style="font-size:0.85rem;color:var(--gray-300);padding:0.25rem 0;"><strong style="color:var(--white);">Platform</strong> — macOS now; Linux under eval agreement; other (specify)</li>
+        <li style="font-size:0.85rem;color:var(--gray-300);padding:0.25rem 0;"><strong style="color:var(--white);">Throughput target</strong> — decisions/sec + decision point description</li>
+      </ol>
+      <div style="margin-top:1.25rem;">
+        <a href="mailto:eval@mgos.io" class="btn btn-w">Request Evaluation Bundle →</a>
       </div>
     </div>
   </div>
@@ -1754,11 +1796,14 @@ h1 { animation: stepIn 0.15s linear 0.1s both; }
         </tr>
       </tbody>
     </table>
+    <div style="font-family:var(--mono);font-size:0.62rem;color:var(--gray-700);margin-top:0.75rem;font-style:italic;">
+      Comparison assumes pinned environment and scope defined above. See evidence bundle for precise definitions of each gate and property. "Probabilistic Guardrails" refers to a representative architectural category, not specific products.
+    </div>
   </div>
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════
-     6c. FAQ — Technical objections answered
+     FAQ — Technical objections answered
      ═══════════════════════════════════════════════════════════ -->
 <section class="divider" id="faq">
   <div class="container">
@@ -1801,26 +1846,79 @@ h1 { animation: stepIn 0.15s linear 0.1s both; }
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════
-     9. SECURITY
+     SECURITY, IP & POLICIES (condensed — homepage)
      ═══════════════════════════════════════════════════════════ -->
-<section class="divider">
+<section class="divider" id="security-ip-policies">
   <div class="container">
-    <div class="s-label">Security</div>
-    <div class="security-content">
-      <h2>Evidence-first security posture.</h2>
-      <p>MGOS does not claim compliance with specific standards. Instead, it provides the evidence artifacts that compliance processes require: deterministic behavior logs, hash-verified decision chains, bounded-time execution proofs, and replayable test suites.</p>
-      <p>If you discover a vulnerability in MGOS, report it to <a href="mailto:security@mgos.io" class="security-link">security@mgos.io</a> with subject "Security Disclosure." Response within 72 hours.</p>
-      
-      <!-- Threat model anchor -->
-      <div style="margin-top:1.5rem;padding:1.25rem;background:var(--bg-raised);border:1px solid var(--border);border-radius:6px;">
-        <div style="font-family:var(--mono);font-size:0.65rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--gray-500);margin-bottom:0.75rem;">Threat model anchor</div>
-        <div style="font-size:0.78rem;color:var(--gray-300);line-height:1.7;">
-          <strong style="color:var(--red);opacity:0.8;">Fail-open is architecturally forbidden:</strong> if MGOS is unavailable, upstream must default to BLOCK/STOP.<br>
-          <strong style="color:var(--gray-100);">DoS against MGOS process</strong> must be treated as loss of authorization (safe stop).<br>
-          <strong style="color:var(--gray-100);">Host compromise and hardware faults</strong> are out of scope; mitigation is a deployment obligation.
-        </div>
+    <div class="s-label">Security, IP &amp; Policies</div>
+
+    <div style="display:flex;flex-direction:column;gap:0.75rem;max-width:680px;margin-bottom:1.75rem;">
+      <div style="display:flex;gap:0.75rem;align-items:baseline;font-size:0.85rem;">
+        <span style="font-family:var(--mono);color:var(--accent);flex-shrink:0;">IP</span>
+        <span style="color:var(--gray-300);">Patent pending (Polish 30.12.2025; US provisional pending). Enabling architecture details shared under NDA only.</span>
+      </div>
+      <div style="display:flex;gap:0.75rem;align-items:baseline;font-size:0.85rem;">
+        <span style="font-family:var(--mono);color:var(--accent);flex-shrink:0;">Evidence</span>
+        <span style="color:var(--gray-300);">No compliance claims; evidence bundle supports external certification (IEC 61508, DO-178C, etc.) — does not substitute for it.</span>
+      </div>
+      <div style="display:flex;gap:0.75rem;align-items:baseline;font-size:0.85rem;">
+        <span style="font-family:var(--mono);color:var(--accent);flex-shrink:0;">Security</span>
+        <span style="color:var(--gray-300);">Responsible disclosure: 72h acknowledgment — <a href="mailto:security@mgos.io" class="security-link">security@mgos.io</a>. Coordinated publication after patch.</span>
       </div>
     </div>
+
+    <details style="border-top:1px solid var(--border);padding-top:1.25rem;">
+      <summary style="font-family:var(--mono);font-size:0.7rem;color:var(--gray-500);cursor:pointer;letter-spacing:0.06em;text-transform:uppercase;list-style:none;display:flex;align-items:center;gap:0.5rem;">
+        <span>Full IP, Disclosure &amp; Legal details</span>
+        <span style="margin-left:auto;font-size:0.8rem;">↓</span>
+      </summary>
+      <div style="margin-top:1.5rem;">
+
+        <div style="margin-bottom:2.5rem;">
+          <div style="font-family:var(--mono);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray-500);margin-bottom:0.75rem;">Intellectual Property (Patent Pending)</div>
+          <p style="font-size:0.85rem;color:var(--gray-300);line-height:1.7;max-width:680px;margin-bottom:0.5rem;">MGOS architecture, gate semantics, receipt format, and composition algebra are protected intellectual property of Piotr Łukasz Jurkiewicz.</p>
+          <div style="font-family:var(--mono);font-size:0.75rem;color:var(--gray-500);line-height:2;">
+            Polish patent filed: 30.12.2025 &nbsp;·&nbsp; US provisional patent: pending &nbsp;·&nbsp; Trademark: MGOS Sentinel™ (pending)<br>
+            All rights reserved. No reproduction, reverse engineering, or derivative works without written license.
+          </div>
+        </div>
+
+        <div style="margin-bottom:2.5rem;padding-top:1.5rem;border-top:1px solid var(--border);">
+          <div style="font-family:var(--mono);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray-500);margin-bottom:0.75rem;">Public Disclosure Policy (Zero-Overclaim)</div>
+          <p style="font-size:0.85rem;color:var(--gray-300);line-height:1.7;max-width:680px;margin-bottom:0.5rem;">All public claims are scoped to the pinned evaluation environment and verifiable via the evidence bundle. Mechanism-level details (algorithms, thresholds, state encodings) are not disclosed publicly.</p>
+          <div style="font-family:var(--mono);font-size:0.72rem;color:var(--gray-500);margin-bottom:0.4rem;font-weight:600;">Under NDA we provide:</div>
+          <div style="font-size:0.82rem;color:var(--gray-300);line-height:1.9;">
+            Full patent filing package for diligence (description + claims)<br>
+            Architecture and threat model details &nbsp;·&nbsp; Integration kit + acceptance criteria<br>
+            Verified evidence bundle + reproduction instructions &nbsp;·&nbsp; Consensus mechanism details
+          </div>
+        </div>
+
+        <div style="padding-top:1.5rem;border-top:1px solid var(--border);">
+          <div style="font-family:var(--mono);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray-500);margin-bottom:0.75rem;">Legal, Ethics &amp; Privacy</div>
+          <div class="policies-grid">
+            <div class="policy-block">
+              <div class="policy-tag">Legal / Licensing</div>
+              <h3>Evaluation-only access</h3>
+              <p>All software is provided under proprietary license. Evaluation copies distributed under NDA with no implied license to deploy, redistribute, or reverse-engineer. Full terms provided with evaluation package.</p>
+              <p style="margin-top:0.6rem;font-size:0.78rem;color:var(--gray-300);"><strong style="color:var(--white);">Engagement:</strong> Offline Evaluation (NDA) → Integration Pilot → Production License. Eval TTL: typically 30 days.</p>
+            </div>
+            <div class="policy-block">
+              <div class="policy-tag">Ethics / Safety Posture</div>
+              <h3>Reduces harm. Does not transfer responsibility.</h3>
+              <p>MGOS blocks unauthorized execution — it does not make moral judgments, attribute blame, or replace human oversight. Deploying MGOS does not absolve the operator of responsibility for their system's behavior.</p>
+            </div>
+            <div class="policy-block">
+              <div class="policy-tag">Privacy</div>
+              <h3>No telemetry by default.</h3>
+              <p>MGOS does not phone home or collect usage data. Decision logs remain on-premises. Evidence bundles are self-contained. Log verbosity is configurable by the operator.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </details>
+
   </div>
 </section>
 
@@ -1869,33 +1967,7 @@ h1 { animation: stepIn 0.15s linear 0.1s both; }
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════════════════════
-     9b. POLICIES — Legal / Ethics / Privacy
-     ═══════════════════════════════════════════════════════════ -->
-<section class="divider">
-  <div class="container">
-    <div class="s-label">Policies (security, legal, ethics, privacy)</div>
-    <div class="policies-grid">
-      <div class="policy-block">
-        <div class="policy-tag">Legal / Licensing</div>
-        <h3>Evaluation-only access</h3>
-        <p>All software is provided under proprietary license. Evaluation copies are distributed under NDA with no implied license to deploy, redistribute, or reverse-engineer. No warranty of fitness. Limitation of liability applies. Full terms provided with evaluation package.</p>
-        <p style="margin-top:0.6rem;font-size:0.78rem;color:var(--gray-300);"><strong style="color:var(--white);">Engagement model:</strong> 1) Offline Evaluation (NDA) → 2) Integration Pilot (Staging) → 3) Production Deployment License.</p>
-        <p style="font-size:0.78rem;color:var(--gray-500);"><strong style="color:var(--gray-300);">Eval TTL:</strong> Evaluation access is time-limited by agreement (typically 30 days), restricted to offline verification and pilot integration. No implied deployment license.</p>
-      </div>
-      <div class="policy-block">
-        <div class="policy-tag">Ethics / Safety Posture</div>
-        <h3>Reduces harm. Does not transfer responsibility.</h3>
-        <p>MGOS is a technical enforcement mechanism. It blocks unauthorized execution — it does not make moral judgments, attribute blame, or replace human oversight. Deploying MGOS does not absolve the operator of responsibility for their system's behavior.</p>
-      </div>
-      <div class="policy-block">
-        <div class="policy-tag">Privacy</div>
-        <h3>Minimal footprint. No telemetry by default.</h3>
-        <p>MGOS does not phone home, collect usage data, or require network access during operation. Decision logs remain on-premises. Evidence bundles are self-contained. Log verbosity and retention are configurable by the operator.</p>
-      </div>
-    </div>
-  </div>
-</section>
+<!-- IP, PUBLIC DISCLOSURE, POLICIES — merged into SECURITY, IP & POLICIES above -->
 
 <!-- ═══════════════════════════════════════════════════════════
      11. CONTACT
@@ -1909,8 +1981,7 @@ h1 { animation: stepIn 0.15s linear 0.1s both; }
         <a href="mailto:officecontact@mgos.io" class="contact-email">officecontact@mgos.io</a>
         <div class="contact-types">
           → Sales / Evaluation: <a href="mailto:eval@mgos.io" style="color:var(--gray-300);text-decoration:none;">eval@mgos.io</a><br>
-          → Security disclosure: <a href="mailto:security@mgos.io" style="color:var(--gray-300);text-decoration:none;">security@mgos.io</a><br>
-          → Licensing / Legal: <a href="mailto:officecontact@mgos.io" style="color:var(--gray-300);text-decoration:none;">officecontact@mgos.io</a><br>
+          → Security disclosure: <a href="mailto:security@mgos.io" style="color:var(--gray-300);text-decoration:none;">security@mgos.io</a><br>          → Licensing / Legal: <a href="mailto:officecontact@mgos.io" style="color:var(--gray-300);text-decoration:none;">officecontact@mgos.io</a><br>
           → Research collaboration: <a href="mailto:officecontact@mgos.io" style="color:var(--gray-300);text-decoration:none;">officecontact@mgos.io</a>
         </div>
       </div>
@@ -1921,12 +1992,11 @@ h1 { animation: stepIn 0.15s linear 0.1s both; }
           <p>Where in your system does inference end and execution begin? What sits on each side?</p>
         </div>
         <div class="poc-item">
-          <strong>Test suite expectations</strong>
-          <p>What does "working" look like for you? Determinism threshold, latency ceiling, conflict scenarios you need covered.</p>
+          <strong>Test suite expectations</          <p>What does "working" look like for you? Determinism threshold, latency ceiling, conflict scenarios you need covered.</p>
         </div>
         <div class="poc-item">
-          <strong>Threat model & acceptance criteria</strong>
-          <p>What failure modes matter? Byzantine channels, sensor disagreement, model hallucination, adversarial injection — what do you need covered?</p>
+          <strong>Threat model &amp; acceptance criteria</strong>
+          <p>What failure modes matter? Byzantine channels, sensor disagreement, model hallucination, adversarial injection.</p>
         </div>
       </div>
     </div>
@@ -1938,7 +2008,8 @@ h1 { animation: stepIn 0.15s linear 0.1s both; }
     <div class="footer-inner">
       <div class="footer-left">
         © 2025–2026 MGOS Sentinel™<br>
-        Proprietary technology. All rights reserved.
+        Proprietary technology. Patent pending. Evaluation access under NDA.<br>
+        CORE_PIN: 337d69f71970
       </div>
       <div class="footer-right">
         <a href="mailto:officecontact@mgos.io">officecontact@mgos.io</a><br>
