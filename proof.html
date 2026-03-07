@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proof Boundary — MGOS Runtime Stack</title>
+<meta name="description" content="MGOS proof boundary: what is formally verified, what is engineered, what remains open. Core authorization logic proved in Lean 4. Explicit transfer obligations.">
+<meta property="og:title" content="Proof Boundary — MGOS Runtime Stack">
+<meta property="og:description" content="A small formal nucleus. Explicit transfer obligations. No hidden claims.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mgos.io/proof">
+<link rel="canonical" href="https://mgos.io/proof">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#08090a;--bg-r:#0e1012;--bg-s:#141618;
+  --border:rgba(255,255,255,0.06);--border-h:rgba(255,255,255,0.12);
+  --white:#e8e8e6;--g100:#ccc;--g300:#888;--g500:#555;--g700:#2a2a2a;--g900:#151515;
+  --accent:#b8ee00;--accent-dim:rgba(184,238,0,0.10);
+  --red:#FF4455;--blue:#4488FF;--amber:#f59e0b;--green:#22c55e;--stack:#EDEDED;
+  --mono:'JetBrains Mono','SF Mono',monospace;--sans:'Instrument Sans',-apple-system,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{font-size:16px;scroll-behavior:smooth;-webkit-font-smoothing:antialiased;}
+body{background:var(--bg);color:var(--white);font-family:var(--sans);line-height:1.65;overflow-x:hidden;}
+::selection{background:var(--accent);color:var(--bg);}
+a{color:inherit;text-decoration:none;}
+.container{max-width:860px;margin:0 auto;padding:0 2rem;}
+section{padding:4.5rem 0;}
+.divider{border-top:1px solid var(--border);}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:.85rem 2rem;display:flex;justify-content:space-between;align-items:center;background:rgba(8,9,10,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);}
+.nav-logo{display:flex;align-items:center;gap:.6rem;}
+.nav-mark{width:26px;height:26px;background:var(--white);border-radius:4px;display:flex;align-items:flex-end;padding:3px;gap:2px;}
+.nav-mark .a{width:12px;height:15px;background:var(--bg);border-radius:1px;}
+.nav-mark .b{width:7px;height:10px;background:var(--bg);border-radius:1px;}
+.nav-logo span{font-family:var(--mono);font-weight:500;font-size:.78rem;letter-spacing:.04em;}
+.nav-links{display:flex;gap:1.5rem;align-items:center;}
+.nav-links a{color:var(--g300);font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;transition:color .2s;}
+.nav-links a:hover{color:var(--white);}
+.nav-back{color:var(--accent)!important;font-weight:500;}
+.nav-cta{background:var(--white)!important;color:var(--bg)!important;padding:.38rem .8rem;border-radius:3px;transition:background .2s!important;}
+.nav-cta:hover{background:var(--accent)!important;}
+
+/* LABELS & TYPE */
+.s-label{font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--g500);margin-bottom:2rem;display:flex;align-items:center;gap:.75rem;}
+.s-label::before{content:'';width:18px;height:1px;background:var(--g500);}
+h1{font-size:clamp(2rem,4.5vw,3rem);font-weight:700;line-height:1.1;letter-spacing:-.03em;margin-bottom:1rem;}
+h2{font-size:clamp(1.2rem,2.5vw,1.6rem);font-weight:600;letter-spacing:-.02em;margin-bottom:1rem;line-height:1.25;}
+.sub{color:var(--g300);font-size:.9rem;line-height:1.75;max-width:640px;}
+.sub strong{color:var(--white);}
+
+/* PROVED LIST */
+.proved-list{list-style:none;padding:0;}
+.proved-list li{display:flex;align-items:baseline;gap:.75rem;padding:.6rem 0;border-bottom:1px solid var(--border);font-size:.85rem;color:var(--g300);}
+.proved-list li:last-child{border-bottom:none;}
+.proved-list .mark{font-family:var(--mono);font-size:.7rem;color:var(--green);flex-shrink:0;width:16px;}
+
+/* ASSUMPTION BOX */
+.assumption-box{background:var(--bg-r);border:1px solid var(--border);border-radius:6px;padding:1.75rem;margin-top:1.5rem;}
+.assumption-box h3{font-family:var(--mono);font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--g500);margin-bottom:1rem;}
+.assumption-item{font-size:.82rem;color:var(--g300);padding:.4rem 0;border-bottom:1px solid var(--border);line-height:1.6;}
+.assumption-item:last-child{border-bottom:none;}
+
+/* SCOPE COLS (reused from homepage) */
+.scope-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.25rem;margin-top:1.5rem;}
+.scope-col{background:var(--bg-r);border:1px solid var(--border);border-radius:6px;padding:1.75rem;position:relative;overflow:hidden;}
+.scope-col::before{content:'';position:absolute;top:0;left:0;right:0;height:2.5px;}
+.scope-col.s-b::before{background:var(--blue);}
+.scope-col.s-a::before{background:var(--amber);}
+.scope-title{font-family:var(--mono);font-size:.65rem;letter-spacing:.1em;margin-bottom:.75rem;}
+.scope-item{font-family:var(--mono);font-size:.72rem;color:var(--g300);padding:.35rem 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.scope-item:last-child{border-bottom:none;}
+
+/* OPEN OBLIGATIONS */
+.open-list{list-style:none;padding:0;}
+.open-list li{display:flex;align-items:baseline;gap:.75rem;padding:.6rem 0;border-bottom:1px solid var(--border);font-size:.85rem;color:var(--g300);}
+.open-list li:last-child{border-bottom:none;}
+.open-list .mark{font-family:var(--mono);font-size:.6rem;color:var(--amber);flex-shrink:0;letter-spacing:.06em;}
+
+/* CLAIM MAP TABLE */
+.claim-table{width:100%;border-collapse:collapse;margin-top:1rem;}
+.claim-table th{font-family:var(--mono);font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--g500);padding:.75rem 1rem;text-align:left;border-bottom:1px solid var(--border-h);font-weight:500;}
+.claim-table td{padding:.7rem 1rem;border-bottom:1px solid var(--border);font-size:.8rem;color:var(--g300);}
+.claim-table td:first-child{color:var(--white);font-weight:500;}
+.status-proved{font-family:var(--mono);font-size:.68rem;color:var(--green);}
+.status-cond{font-family:var(--mono);font-size:.68rem;color:var(--amber);}
+.status-open{font-family:var(--mono);font-size:.68rem;color:var(--red);}
+.status-val{font-family:var(--mono);font-size:.68rem;color:var(--blue);}
+.scope-note{font-family:var(--mono);font-size:.68rem;color:var(--g500);}
+
+/* ARTIFACT LIST */
+.artifact{display:flex;align-items:center;gap:.75rem;padding:.6rem 0;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:.75rem;}
+.artifact:last-child{border-bottom:none;}
+.artifact-name{color:var(--white);}
+.artifact-desc{color:var(--g500);margin-left:auto;}
+
+/* CTA SECTION */
+.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.65rem 1.3rem;border-radius:3px;font-family:var(--mono);font-size:.72rem;font-weight:500;letter-spacing:.02em;transition:all .2s;border:none;cursor:pointer;}
+.btn-w{background:var(--white);color:var(--bg);}
+.btn-w:hover{background:var(--accent);}
+.btn-o{background:transparent;color:var(--white);border:1px solid var(--border-h);}
+.btn-o:hover{border-color:var(--g300);background:rgba(255,255,255,.03);}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:2.5rem 0;}
+.footer-inner{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1.5rem;}
+.footer-col{font-family:var(--mono);font-size:.62rem;color:var(--g500);line-height:2;}
+.footer-col a{color:var(--g300);transition:color .2s;}
+.footer-col a:hover{color:var(--accent);}
+
+/* RESPONSIVE */
+@media(max-width:768px){.scope-grid{grid-template-columns:1fr;}.nav-links a:not(.nav-cta):not(.nav-back){display:none;}}
+@media(max-width:600px){section{padding:3rem 0;}.container{padding:0 1.25rem;}.claim-table{font-size:.72rem;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo"><div class="nav-mark"><div class="a"></div><div class="b"></div></div><span>MGOS</span></a>
+  <div class="nav-links">
+    <a href="/" class="nav-back">mgos.io</a>
+    <a href="/runtime-stack">Architecture</a>
+    <a href="#claim-map">Claim Map</a>
+    <a href="mailto:eval@mgos.io" class="nav-cta">Request Artifact</a>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section style="padding-top:6rem;">
+  <div class="container">
+    <div class="s-label">Proof Boundary</div>
+    <h1>A small formal nucleus.<br>Explicit transfer obligations.<br>No hidden claims.</h1>
+    <p class="sub">MGOS does not ask you to trust a story. It shows exactly which kernel properties are formally mechanized, which layers are engineered, and which operational claims are supported by auditable evidence.</p>
+  </div>
+</section>
+
+<!-- ═══ 1. WHAT IS FORMALLY PROVED ═══ -->
+<section class="divider" id="proved">
+  <div class="container">
+    <div class="s-label">What is formally proved</div>
+    <h2>The formally verified nucleus is the core authorization kernel, not the full product stack.</h2>
+    <p class="sub" style="margin-bottom:1.5rem;">In the current Lean artifact, the following model-level claims are proved:</p>
+    <ul class="proved-list">
+      <li><span class="mark">&#10003;</span> Fail-safe authorization rule</li>
+      <li><span class="mark">&#10003;</span> Output exhaustiveness / totality</li>
+      <li><span class="mark">&#10003;</span> Model-level determinism</li>
+      <li><span class="mark">&#10003;</span> Permutation invariance of the vote</li>
+      <li><span class="mark">&#10003;</span> Permutation invariance of the derived TMR decision</li>
+      <li><span class="mark">&#10003;</span> Conflict safety</li>
+      <li><span class="mark">&#10003;</span> Manual-override dominance</li>
+      <li><span class="mark">&#10003;</span> Abstract receipt composition</li>
+    </ul>
+    <div style="font-family:var(--mono);font-size:.62rem;color:var(--g700);margin-top:1rem;">Formal methods paper and artifact available on request.</div>
+  </div>
+</section>
+
+<!-- ═══ 2. WHERE THE PROOF STARTS ═══ -->
+<section class="divider" id="boundary">
+  <div class="container">
+    <div class="s-label">Where the proof starts</div>
+    <h2>The formal model begins after the normalization boundary.</h2>
+    <p class="sub">MGOS does not prove arbitrary perception, sensor fusion, or upstream AI semantics. It proves the behavior of the small execution-boundary kernel once external evidence has already been mapped into the kernel decision domain.</p>
+    <p class="sub" style="margin-top:1rem;"><strong>This is deliberate.</strong> It keeps the trusted core small, auditable, and suitable for mechanization.</p>
+
+    <!-- Diagram: where proof starts -->
+    <div style="margin-top:2rem;display:flex;justify-content:center;">
+      <svg width="600" height="100" viewBox="0 0 600 100" fill="none" role="img">
+        <title>Proof boundary diagram</title>
+        <desc>Shows that upstream layers are outside proof scope; formal proofs begin at the kernel boundary</desc>
+        <rect x="10" y="25" width="180" height="50" rx="5" fill="none" stroke="#2a2a2a" stroke-width="1" stroke-dasharray="4 3"/>
+        <text x="100" y="48" text-anchor="middle" font-family="monospace" font-size="8" fill="#555">UPSTREAM</text>
+        <text x="100" y="62" text-anchor="middle" font-family="monospace" font-size="7" fill="#555">sensors | models | inference</text>
+        <line x1="195" y1="50" x2="240" y2="50" stroke="#555" stroke-width="1"/>
+        <text x="218" y="42" text-anchor="middle" font-family="monospace" font-size="6" fill="#f59e0b">N : E -> D</text>
+        <text x="218" y="72" text-anchor="middle" font-family="monospace" font-size="6" fill="#f59e0b">PO4 OPEN</text>
+        <line x1="240" y1="20" x2="240" y2="80" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3 2"/>
+        <rect x="250" y="20" width="150" height="60" rx="5" fill="rgba(184,238,0,.06)" stroke="#b8ee00" stroke-width="1.5"/>
+        <text x="325" y="46" text-anchor="middle" font-family="monospace" font-size="9" fill="#b8ee00" font-weight="bold">KERNEL</text>
+        <text x="325" y="60" text-anchor="middle" font-family="monospace" font-size="7" fill="#b8ee00" opacity=".6">LEAN 4 PROVED</text>
+        <line x1="405" y1="50" x2="440" y2="50" stroke="#555" stroke-width="1"/>
+        <rect x="440" y="25" width="140" height="50" rx="5" fill="none" stroke="#2a2a2a" stroke-width="1" stroke-dasharray="4 3"/>
+        <text x="510" y="48" text-anchor="middle" font-family="monospace" font-size="8" fill="#555">DOWNSTREAM</text>
+        <text x="510" y="62" text-anchor="middle" font-family="monospace" font-size="7" fill="#555">actuators | APIs | C2</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 3. ASSUMPTIONS AND SCOPE ═══ -->
+<section class="divider" id="assumptions">
+  <div class="container">
+    <div class="s-label">Assumptions and scope</div>
+    <h2>Some claims depend on an explicit pinned-environment contract.</h2>
+    <p class="sub">The current formal story is model-level first, with implementation-level transfer obligations stated explicitly rather than silently upgraded into theorem status.</p>
+    <div class="assumption-box">
+      <h3>Pinned environment assumptions</h3>
+      <div class="assumption-item">Fixed build and configuration</div>
+      <div class="assumption-item">Deterministic iteration order</div>
+      <div class="assumption-item">Stable serialization</div>
+      <div class="assumption-item">Fixed hashing behavior in the declared environment</div>
+    </div>
+    <div style="font-family:var(--mono);font-size:.72rem;color:var(--g500);margin-top:1rem;padding-left:.75rem;border-left:2px solid var(--g700);line-height:1.8;">Cross-platform bitwise identity is out of scope.<br>Determinism and receipt identity are claimed within a pinned environment only.</div>
+  </div>
+</section>
+
+<!-- ═══ 4. ENGINEERED + 5. OPERATIONAL ═══ -->
+<section class="divider" id="layers">
+  <div class="container">
+    <div class="s-label">What is engineered. What is operationally validated.</div>
+    <div class="scope-grid">
+      <div class="scope-col s-b">
+        <div class="scope-title" style="color:var(--blue);">Engineered (not formally closed)</div>
+        <p style="font-size:.82rem;color:var(--g300);margin-bottom:1rem;line-height:1.6;">These layers matter operationally. They are tracked in a different assurance layer than the Lean kernel.</p>
+        <div class="scope-item">Integrity / normalization boundary</div>
+        <div class="scope-item">Evidence pipeline and bundle tooling</div>
+        <div class="scope-item">Concrete cryptographic receipt pipeline</div>
+        <div class="scope-item">Deployment packaging and integration logic</div>
+        <div class="scope-item">Sentinel operator console</div>
+      </div>
+      <div class="scope-col s-a">
+        <div class="scope-title" style="color:var(--amber);">Operationally validated</div>
+        <p style="font-size:.82rem;color:var(--g300);margin-bottom:1rem;line-height:1.6;">Operational validation is not a theorem. It is a separate evidence layer designed to be replayable and externally auditable.</p>
+        <div class="scope-item">Baseline hardtests: PASS</div>
+        <div class="scope-item">Soak tests: PASS</div>
+        <div class="scope-item">Poison-input tests: PASS</div>
+        <div class="scope-item">Zero unsafe authorization (audited suites)</div>
+        <div class="scope-item">Fail-close coverage = 1.0 where required</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 6. WHAT REMAINS OPEN ═══ -->
+<section class="divider" id="open">
+  <div class="container">
+    <div class="s-label">What remains open</div>
+    <h2>Items that are not closed are named explicitly.</h2>
+    <p class="sub" style="margin-bottom:1.5rem;">MGOS follows a zero-overclaim discipline. This is not a weakness in presentation. It is the proof architecture itself.</p>
+    <ul class="open-list">
+      <li><span class="mark">OPEN</span> Normalizer verification (PO4)</li>
+      <li><span class="mark">COND</span> Formal refinement from model to executable implementation</li>
+      <li><span class="mark">COND</span> Target-specific termination / WCET evidence</li>
+      <li><span class="mark">COND</span> Stable concrete cryptographic receipt layer</li>
+      <li><span class="mark">DEPL</span> Hardware fault tolerance and deployment safety case closure</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══ 7. CLAIM MAP ═══ -->
+<section class="divider" id="claim-map">
+  <div class="container">
+    <div class="s-label">Claim map</div>
+    <table class="claim-table">
+      <thead>
+        <tr><th>Claim</th><th>Status</th><th>Scope</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Fail-safe authorization rule</td><td><span class="status-proved">PROVED</span></td><td class="scope-note">Lean kernel model</td></tr>
+        <tr><td>Output exhaustiveness / totality</td><td><span class="status-proved">PROVED</span></td><td class="scope-note">Lean kernel model</td></tr>
+        <tr><td>Model-level determinism</td><td><span class="status-proved">PROVED</span></td><td class="scope-note">Pure functional model</td></tr>
+        <tr><td>Vote permutation invariance</td><td><span class="status-proved">PROVED</span></td><td class="scope-note">Lean permutation layer</td></tr>
+        <tr><td>TMR decision permutation invariance</td><td><span class="status-proved">PROVED</span></td><td class="scope-note">Lean permutation layer</td></tr>
+        <tr><td>Conflict safety</td><td><span class="status-proved">PROVED</span></td><td class="scope-note">Lean kernel model</td></tr>
+        <tr><td>Manual-override dominance</td><td><span class="status-proved">PROVED</span></td><td class="scope-note">Lean kernel model</td></tr>
+        <tr><td>Receipt composition (abstract)</td><td><span class="status-proved">PROVED</span></td><td class="scope-note">Abstract witness model</td></tr>
+        <tr><td>Bitwise determinism</td><td><span class="status-cond">CONDITIONAL</span></td><td class="scope-note">Pinned environment required</td></tr>
+        <tr><td>Target-level termination / WCET</td><td><span class="status-cond">CONDITIONAL</span></td><td class="scope-note">Platform evidence required</td></tr>
+        <tr><td>Stable concrete cryptographic receipts</td><td><span class="status-cond">CONDITIONAL</span></td><td class="scope-note">Concrete pipeline not fully mechanized</td></tr>
+        <tr><td>Normalizer verification</td><td><span class="status-open">OPEN</span></td><td class="scope-note">N : E -> D remains primary transfer risk</td></tr>
+        <tr><td>Audited black-box suites</td><td><span class="status-val">VALIDATED</span></td><td class="scope-note">Evidence packs / audited runs</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══ 8. ARTIFACTS ═══ -->
+<section class="divider" id="artifacts">
+  <div class="container">
+    <div class="s-label">Artifacts and reproducibility</div>
+    <h2>The proof story is supported by reproducible artifacts.</h2>
+    <p class="sub" style="margin-bottom:1.5rem;">This is intended for independent review, not only internal demonstration.</p>
+    <div class="artifact"><span class="artifact-name">Lean toolchain</span><span class="artifact-desc">pinned version, one-command build</span></div>
+    <div class="artifact"><span class="artifact-name">Formal artifact</span><span class="artifact-desc">mechanized proofs, reproducible</span></div>
+    <div class="artifact"><span class="artifact-name">MANIFEST.txt</span><span class="artifact-desc">file inventory + descriptions</span></div>
+    <div class="artifact"><span class="artifact-name">SHA256SUMS.txt</span><span class="artifact-desc">hash manifest for all artifacts</span></div>
+    <div class="artifact"><span class="artifact-name">VERIFY_BUNDLE.sh</span><span class="artifact-desc">one-command integrity check</span></div>
+    <div class="artifact"><span class="artifact-name">Evidence bundles</span><span class="artifact-desc">hash-verified, replayable</span></div>
+    <div style="font-family:var(--mono);font-size:.65rem;color:var(--g500);margin-top:1rem;line-height:1.8;">
+      Evidence is tamper-evident. Replayable. No external anchoring by default.<br>
+      Receipt verification = hash-chain + bundle integrity (MANIFEST/SHA).
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CLOSING ═══ -->
+<section class="divider" style="padding:4rem 0;">
+  <div class="container">
+    <div class="s-label">Why this matters</div>
+    <h2>AI systems are hard to certify end-to-end.<br>MGOS does not claim to certify them.</h2>
+    <p class="sub" style="margin-bottom:2rem;">Instead, it offers something narrower and more auditable: a deterministic execution-boundary kernel, a named proof boundary, and an evidence trail that can be inspected by third parties.</p>
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+      <a href="/runtime-stack" class="btn btn-o">Open Runtime Stack</a>
+      <a href="mailto:eval@mgos.io" class="btn btn-w">Request Artifact Access</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-col">(c) 2025-2026 Piotr Lukasz Jurkiewicz, PhD. All rights reserved.<br>MGOS Runtime Stack | Patent pending (PL/US) | CORE_PIN: 337d69f71970</div>
+      <div class="footer-col" style="text-align:right;">
+        <a href="/">mgos.io</a> | <a href="/runtime-stack">Architecture</a> | <a href="mailto:eval@mgos.io">eval@mgos.io</a> | <a href="mailto:security@mgos.io">security@mgos.io</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
