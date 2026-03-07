@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Runtime Stack — MGOS</title>
+<meta name="description" content="MGOS Runtime Stack: deterministic authorization between AI proposals and real-world execution. Architecture, proof boundary, and operational validation.">
+<meta property="og:title" content="Runtime Stack — MGOS">
+<meta property="og:description" content="The complete runtime path from uncertain upstream input to deterministic downstream execution control. Integrity-preserving. Evidence-producing. Fail-safe.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mgos.io/runtime-stack">
+<link rel="canonical" href="https://mgos.io/runtime-stack">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══ RESET ═══ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+:root{
+  --bg:#0A0B0D;
+  --bg-card:#0E1015;
+  --container:#1A1D23;
+  --border:#1E2028;
+  --border-s:#16181E;
+  --white:#F0F0F0;
+  --g100:#E0E0E0;
+  --g300:#A0A0A8;
+  --g500:#6B6B76;
+  --g700:#3A3A44;
+  --g900:#1A1A22;
+  --accent:#B8FF00;
+  --red:#FF4455;
+  --blue:#4488FF;
+  --amber:#F59E0B;
+  --stack:#EDEDED;
+  --sans:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --mono:'DM Mono','SF Mono','Fira Code',Consolas,monospace;
+}
+
+html{scroll-behavior:smooth;}
+body{font-family:var(--sans);background:var(--bg);color:var(--g300);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+a{color:inherit;text-decoration:none;}
+
+/* ═══ REVEAL ═══ */
+.js-ready .rv{opacity:0;transform:translateY(36px);transition:opacity .85s cubic-bezier(.16,1,.3,1),transform .85s cubic-bezier(.16,1,.3,1);}
+.js-ready .rv.vis{opacity:1;transform:translateY(0);}
+@media(prefers-reduced-motion:reduce){.js-ready .rv{opacity:1!important;transform:none!important;transition:none!important;}}
+.d1{transition-delay:.12s;}.d2{transition-delay:.24s;}.d3{transition-delay:.36s;}.d4{transition-delay:.48s;}
+
+/* ═══ NAV ═══ */
+nav{position:sticky;top:0;z-index:100;background:rgba(10,11,13,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border-s);padding:.55rem 0;}
+nav .wrap{max-width:1020px;margin:0 auto;padding:0 2rem;display:flex;align-items:center;gap:1.5rem;overflow-x:auto;white-space:nowrap;}
+nav a{font-family:var(--mono);font-size:.62rem;color:var(--g500);letter-spacing:.04em;transition:color .2s;}
+nav a:hover{color:var(--white);}
+.nav-logo{display:flex;align-items:flex-end;gap:0;margin-right:.5rem;flex-shrink:0;}
+.nav-back{color:var(--accent);font-weight:500;}
+
+/* ═══ LAYOUT ═══ */
+.container{max-width:1020px;margin:0 auto;padding:0 2rem;}
+.scene{padding:6rem 0;border-bottom:1px solid var(--border-s);position:relative;}
+.scene-hero{padding:5rem 0 4rem;}
+.scene-full{min-height:80vh;display:flex;align-items:center;}
+.label{font-family:var(--mono);font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--g500);margin-bottom:1.25rem;}
+
+/* ═══ TYPE ═══ */
+h1,.h1{font-size:clamp(2rem,5vw,3.6rem);font-weight:700;color:var(--white);letter-spacing:-.035em;line-height:1.1;}
+h2,.h2{font-size:clamp(1.6rem,3.5vw,2.6rem);font-weight:700;color:var(--white);letter-spacing:-.025em;line-height:1.15;}
+.accent{color:var(--accent);}.c-red{color:var(--red);}.c-blue{color:var(--blue);}.c-amber{color:var(--amber);}
+.sub{font-size:clamp(.95rem,1.8vw,1.15rem);color:var(--g300);line-height:1.7;max-width:600px;margin-top:1.25rem;font-weight:300;}
+.sub strong{color:var(--white);font-weight:500;}
+
+/* ═══ 2-COL ═══ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;}
+.two-col.flip{direction:rtl;}.two-col.flip>*{direction:ltr;}
+@media(max-width:768px){.two-col,.two-col.flip{grid-template-columns:1fr;gap:2rem;direction:ltr;}.scope-grid{grid-template-columns:1fr;}}
+
+/* ═══ GRID CARDS ═══ */
+.g-row{display:grid;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.g-row.c2{grid-template-columns:repeat(2,1fr);}
+.g-row.c3{grid-template-columns:repeat(3,1fr);}
+.g-row.c4{grid-template-columns:repeat(4,1fr);}
+.g-row.c5{grid-template-columns:repeat(5,1fr);}
+.g-cell{background:var(--bg-card);padding:1.5rem 1.25rem;}
+.g-cell.center{text-align:center;}
+@media(max-width:768px){.g-row.c3,.g-row.c4,.g-row.c5{grid-template-columns:1fr;}}
+
+/* ═══ PIPELINE ═══ */
+.pipe-step{position:relative;}
+.pipe-step .pipe-bar{position:absolute;top:0;left:0;right:0;height:2.5px;}
+.pipe-letter{font-family:var(--mono);font-size:.55rem;letter-spacing:.15em;margin-bottom:.4rem;}
+.pipe-name{font-size:.88rem;font-weight:600;color:var(--white);margin-bottom:.25rem;}
+.pipe-desc{font-family:var(--mono);font-size:.6rem;color:var(--g500);line-height:1.5;}
+
+/* ═══ LOGO ICON ═══ */
+.logo-i{width:48px;height:48px;background:var(--container);border-radius:10px;display:flex;align-items:flex-end;justify-content:center;gap:2px;padding-bottom:10px;flex-shrink:0;}
+.logo-i .bl{border-radius:2px;}.logo-i .bl-l{width:17px;height:24px;}.logo-i .bl-r{width:10px;height:18px;}
+.logo-i.lg{width:64px;height:64px;border-radius:14px;padding-bottom:14px;gap:3px;}
+.logo-i.lg .bl-l{width:22px;height:32px;}.logo-i.lg .bl-r{width:14px;height:24px;}
+
+/* ═══ CALLOUT ═══ */
+.callout{padding:1rem 1.25rem;border:1px solid var(--border);border-radius:4px;display:flex;gap:1rem;align-items:flex-start;}
+.callout .tag{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;white-space:nowrap;padding-top:2px;}
+.callout .body{font-size:.82rem;color:var(--g300);line-height:1.65;}
+
+/* ═══ BADGE ═══ */
+.badge{font-family:var(--mono);font-size:.55rem;padding:2px 7px;border-radius:2px;letter-spacing:.04em;}
+.badge-green{background:rgba(184,238,0,.1);color:var(--accent);}
+.badge-amber{background:rgba(255,184,0,.1);color:var(--amber);}
+
+/* ═══ SCOPE COLS ═══ */
+.scope-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;}
+.scope-col{background:var(--container);border-radius:8px;padding:2rem 1.5rem;position:relative;overflow:hidden;}
+.scope-col::before{content:'';position:absolute;top:0;left:0;right:0;height:2.5px;}
+.scope-col.s-green::before{background:var(--accent);}
+.scope-col.s-blue::before{background:var(--blue);}
+.scope-col.s-amber::before{background:var(--amber);}
+.scope-title{font-family:var(--mono);font-size:.65rem;letter-spacing:.12em;margin-bottom:1rem;}
+.scope-item{font-family:var(--mono);font-size:.75rem;color:var(--g300);padding:.35rem 0;border-bottom:1px solid var(--border-s);}
+.scope-item:last-child{border-bottom:none;}
+.scope-note{font-family:var(--mono);font-size:.6rem;color:var(--g500);margin-top:1.25rem;}
+
+/* ═══ PRINCIPLES ═══ */
+.principle{padding:1.5rem 0;border-bottom:1px solid var(--g900);}
+.principle:last-child{border-bottom:none;}
+.principle .num{font-family:var(--mono);font-size:.65rem;letter-spacing:.1em;}
+.principle .txt{font-size:clamp(1rem,2vw,1.2rem);color:var(--white);font-weight:500;margin-top:.3rem;}
+
+/* ═══ MOTTO ═══ */
+.motto-line{font-size:clamp(1.3rem,3.2vw,2.2rem);font-weight:700;letter-spacing:-.02em;line-height:1.35;}
+
+/* ═══ FOOTER ═══ */
+footer{padding:2.5rem 0;border-top:1px solid var(--border-s);}
+.footer-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;}
+.footer-left,.footer-right{font-family:var(--mono);font-size:.58rem;color:var(--g700);}
+.footer-right a{color:var(--g500);transition:color .2s;}
+.footer-right a:hover{color:var(--white);}
+
+/* ═══ SVG DIAGRAMS ═══ */
+.illus{margin:2.5rem auto 0;display:flex;justify-content:center;}
+.illus svg{max-width:100%;height:auto;}
+
+/* ═══ GRAIN ═══ */
+body::after{content:'';position:fixed;inset:0;pointer-events:none;opacity:.02;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:256px 256px;}
+</style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══ -->
+<nav>
+  <div class="wrap">
+    <div class="nav-logo">
+      <svg width="20" height="16" viewBox="0 0 20 16"><rect width="20" height="16" rx="3" fill="var(--container)"/><rect x="3" y="2.5" width="8" height="11" rx="1.5" fill="var(--accent)"/><rect x="12" y="5" width="5" height="8.5" rx="1.5" fill="var(--accent)"/></svg>
+    </div>
+    <a href="/" class="nav-back">mgos.io</a>
+    <a href="#problem">Problem</a>
+    <a href="#integrity">Integrity</a>
+    <a href="#kernel">Kernel</a>
+    <a href="#evidence">Evidence</a>
+    <a href="#sentinel">Sentinel</a>
+    <a href="#pipeline">Pipeline</a>
+    <a href="#scope">Proof</a>
+    <a href="#principles">Principles</a>
+    <a href="mailto:eval@mgos.io" style="background:var(--white);color:var(--bg);padding:.35rem .75rem;border-radius:3px;transition:background .2s;" onmouseover="this.style.background='var(--accent)'" onmouseout="this.style.background='var(--white)'">Request Eval</a>
+  </div>
+</nav>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     HERO
+     ═══════════════════════════════════════════════════════════ -->
+<section class="scene scene-hero">
+  <div class="container">
+    <div class="rv"><div class="label">MGOS Runtime Stack</div></div>
+    <h1 class="rv d1">Deterministic authorization<br>between AI proposals and<br>real-world <span class="accent">execution</span>.</h1>
+    <p class="sub rv d2">The complete runtime path — from uncertain upstream input to deterministic downstream execution control. One product. One boundary. Verifiable evidence trail.</p>
+    <p class="rv d3" style="margin-top:1.5rem;">
+      <span class="motto-line" style="font-size:clamp(.95rem,2vw,1.3rem);">
+        <span style="color:var(--white);">AI proposes.</span>
+        <span class="c-blue">Integrity stabilizes.</span>
+        <strong style="color:var(--white);">MGOS authorizes.</strong>
+        <span class="c-amber">Evidence proves.</span>
+      </span>
+    </p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     THE PROBLEM
+     ═══════════════════════════════════════════════════════════ -->
+<section class="scene" id="problem">
+  <div class="container">
+    <div class="rv"><div class="label">The problem</div></div>
+    <h2 class="rv d1">Models generate proposals.<br>Sensors generate observations.<br><span class="c-red">Neither should control execution.</span></h2>
+    <p class="sub rv d2">Current guardrails are probabilistic, model-internal, and unauditable. Between proposal and execution, the authorization boundary is often <strong>fragmented, implicit, or unverifiable</strong>.</p>
+
+    <div class="illus rv d3">
+      <svg width="580" height="160" viewBox="0 0 580 160" fill="none">
+        <rect x="10" y="30" width="150" height="100" rx="6" fill="#1A1D23" stroke="#2A2A36" stroke-width=".8"/>
+        <text x="85" y="82" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" fill="#6B6B76">AI / SENSORS</text>
+        <g opacity=".55"><circle cx="220" cy="60" r="5" fill="#FF4455"/><circle cx="245" cy="95" r="5" fill="#B8FF00"/><circle cx="230" cy="45" r="5" fill="#4488FF"/><circle cx="260" cy="75" r="5" fill="#F59E0B"/></g>
+        <line x1="168" y1="70" x2="210" y2="55" stroke="#3A3A44" stroke-width=".8" stroke-dasharray="4 3"/>
+        <line x1="168" y1="80" x2="240" y2="90" stroke="#3A3A44" stroke-width=".8" stroke-dasharray="4 3"/>
+        <line x1="168" y1="90" x2="220" y2="100" stroke="#3A3A44" stroke-width=".8" stroke-dasharray="4 3"/>
+        <rect x="310" y="30" width="250" height="100" rx="6" fill="none" stroke="#FF4455" stroke-width="1" stroke-dasharray="6 4" opacity=".35"/>
+        <text x="435" y="78" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="30" fill="#FF4455" opacity=".2">?</text>
+        <text x="435" y="105" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#6B6B76">EXECUTION LAYER</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     THE FACTORY
+     ═══════════════════════════════════════════════════════════ -->
+<section class="scene">
+  <div class="container">
+    <div class="rv"><div class="label">Imagine a factory</div></div>
+    <h2 class="rv d1">A robot gets orders<br>from an <span class="accent">AI</span>.</h2>
+    <p class="sub rv d2">The AI is brilliant — it plans, optimizes, learns. But it also hallucinates, contradicts itself, and has no concept of consequence. Between the proposal and the robot arm, <strong>you need something that never guesses</strong>.</p>
+
+    <div class="illus rv d3">
+      <svg width="620" height="140" viewBox="0 0 620 140" fill="none">
+        <!-- AI -->
+        <rect x="10" y="20" width="130" height="100" rx="7" fill="#1A1D23" stroke="#2A2A36" stroke-width=".8"/>
+        <circle cx="65" cy="58" r="3" fill="#B8FF00" opacity=".6"/><circle cx="75" cy="58" r="3" fill="#FF4455" opacity=".6"/><circle cx="85" cy="58" r="3" fill="#4488FF" opacity=".6"/>
+        <text x="75" y="90" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#6B6B76">AI PLANNER</text>
+        <!-- Arrow 1 -->
+        <line x1="148" y1="70" x2="210" y2="70" stroke="#3A3A44" stroke-width="1"/><polygon points="210,66 218,70 210,74" fill="#3A3A44"/>
+        <text x="179" y="60" text-anchor="middle" font-family="DM Mono,monospace" font-size="7.5" fill="#3A3A44">proposal</text>
+        <!-- MGOS -->
+        <rect x="224" y="10" width="160" height="120" rx="9" fill="#0E1015" stroke="#B8FF00" stroke-width="1.2"/>
+        <text x="304" y="68" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="18" font-weight="700" fill="#B8FF00">MGOS</text>
+        <text x="304" y="86" text-anchor="middle" font-family="DM Mono,monospace" font-size="7.5" fill="#6B6B76">RUNTIME STACK</text>
+        <!-- Arrow 2 -->
+        <line x1="392" y1="70" x2="450" y2="70" stroke="#3A3A44" stroke-width="1"/><polygon points="450,66 458,70 450,74" fill="#3A3A44"/>
+        <text x="421" y="60" text-anchor="middle" font-family="DM Mono,monospace" font-size="7.5" fill="#B8FF00">ALLOW</text>
+        <!-- Actuator -->
+        <rect x="464" y="20" width="130" height="100" rx="7" fill="#1A1D23" stroke="#2A2A36" stroke-width=".8"/>
+        <line x1="529" y1="50" x2="529" y2="75" stroke="#6B6B76" stroke-width="2" stroke-linecap="round"/>
+        <line x1="529" y1="56" x2="517" y2="67" stroke="#6B6B76" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="529" y1="56" x2="541" y2="67" stroke="#6B6B76" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="529" cy="46" r="5" fill="none" stroke="#6B6B76" stroke-width="1.2"/>
+        <text x="529" y="100" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#6B6B76">ACTUATOR</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     INTEGRITY ENGINE (BLUE)
+     ═══════════════════════════════════════════════════════════ -->
+<section class="scene" id="integrity">
+  <div class="container">
+    <div class="two-col">
+      <div>
+        <div class="rv"><div class="label" style="color:var(--blue);">Layer 1 — Integrity Engine</div></div>
+        <h2 class="rv d1">Quality inspector<br>at the <span class="c-blue">gate</span>.</h2>
+        <p class="sub rv d2">Data arrives from everywhere — sensors, models, databases. The Integrity Engine doesn't decide. It asks one question: <strong>can these inputs be stabilized without collapsing genuine conflict into false consistency?</strong></p>
+        <p class="sub rv d3" style="margin-top:1rem;font-family:var(--mono);font-size:.85rem;color:var(--g500);">If two sensors disagree, it preserves the conflict as a signal. Only a stabilized state moves downstream.</p>
+      </div>
+      <div class="rv d2">
+        <svg width="280" height="310" viewBox="0 0 280 310" fill="none">
+          <g opacity=".6">
+            <rect x="5" y="20" width="80" height="28" rx="4" fill="#1A1D23" stroke="#2A2A36"/><text x="45" y="38" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#6B6B76">sensor A</text>
+            <rect x="5" y="56" width="80" height="28" rx="4" fill="#1A1D23" stroke="#2A2A36"/><text x="45" y="74" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#6B6B76">LLM output</text>
+            <rect x="5" y="92" width="80" height="28" rx="4" fill="#1A1D23" stroke="#2A2A36"/><text x="45" y="110" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#6B6B76">sensor B</text>
+          </g>
+          <line x1="90" y1="34" x2="125" y2="88" stroke="#3A3A44" stroke-width=".7"/>
+          <line x1="90" y1="70" x2="125" y2="92" stroke="#3A3A44" stroke-width=".7"/>
+          <line x1="90" y1="106" x2="125" y2="96" stroke="#3A3A44" stroke-width=".7"/>
+          <rect x="120" y="52" width="148" height="100" rx="9" fill="#0E1015" stroke="#4488FF" stroke-width="1.2"/>
+          <rect x="168" y="72" width="22" height="16" rx="2.5" fill="#4488FF"/><rect x="192" y="76" width="13" height="12" rx="2" fill="#4488FF"/>
+          <text x="194" y="108" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#4488FF" letter-spacing=".08em">INTEGRITY ENGINE</text>
+          <rect x="132" y="124" width="124" height="18" rx="3" fill="rgba(68,136,255,.08)"/>
+          <text x="194" y="136" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#4488FF">A != B : CONFLICT KEPT</text>
+          <line x1="194" y1="158" x2="194" y2="195" stroke="#4488FF" stroke-width="1"/><polygon points="190,195 194,203 198,195" fill="#4488FF"/>
+          <rect x="140" y="210" width="108" height="44" rx="6" fill="#1A1D23" stroke="#4488FF" stroke-width=".8"/>
+          <text x="194" y="232" text-anchor="middle" font-family="DM Mono,monospace" font-size="8.5" fill="#F0F0F0">stabilized state</text>
+          <text x="194" y="246" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#4488FF">+ integrity hash</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     DECISION KERNEL (RED)
+     ═══════════════════════════════════════════════════════════ -->
+<section class="scene" id="kernel">
+  <div class="container">
+    <div class="two-col flip">
+      <div>
+        <div class="rv"><div class="label" style="color:var(--red);">Layer 2 — Decision Kernel</div></div>
+        <h2 class="rv d1">The guard at<br>the <span class="c-red">boundary</span>.</h2>
+        <p class="sub rv d2">It receives the stabilized state and answers exactly one question: <strong>is execution allowed?</strong></p>
+        <p class="sub rv d3" style="margin-top:1rem;">Three outcomes. No fourth option. No "maybe." No inference. The same stabilized state under the same policy always produces the same result.</p>
+        <div class="callout rv d4" style="margin-top:1.5rem;border-left:2px solid var(--accent);">
+          <span class="tag" style="color:var(--accent);">LEAN 4</span>
+          <span class="body">Core decision logic formally verified. Proved properties: fail-safe authorization, conflict safety, output exhaustiveness, permutation invariance (TMR), manual-override dominance.</span>
+        </div>
+      </div>
+      <div class="rv d2">
+        <svg width="280" height="310" viewBox="0 0 280 310" fill="none">
+          <rect x="70" y="5" width="120" height="36" rx="5" fill="#1A1D23" stroke="#4488FF" stroke-width=".7" opacity=".6"/>
+          <text x="130" y="27" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#6B6B76">stabilized state</text>
+          <line x1="130" y1="46" x2="130" y2="75" stroke="#3A3A44" stroke-width="1"/><polygon points="126,75 130,83 134,75" fill="#3A3A44"/>
+          <rect x="40" y="85" width="180" height="88" rx="9" fill="#0E1015" stroke="#FF4455" stroke-width="1.2"/>
+          <rect x="105" y="100" width="22" height="16" rx="2.5" fill="#FF4455"/><rect x="129" y="104" width="13" height="12" rx="2" fill="#FF4455"/>
+          <text x="130" y="137" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#FF4455" letter-spacing=".08em">DECISION KERNEL</text>
+          <text x="130" y="152" text-anchor="middle" font-family="DM Mono,monospace" font-size="6" fill="#3A3A44">deterministic | fail-safe</text>
+          <!-- outputs -->
+          <line x1="80" y1="178" x2="45" y2="215" stroke="#3A3A44" stroke-width=".7"/>
+          <line x1="130" y1="178" x2="130" y2="215" stroke="#3A3A44" stroke-width=".7"/>
+          <line x1="180" y1="178" x2="215" y2="215" stroke="#3A3A44" stroke-width=".7"/>
+          <rect x="10" y="220" width="72" height="32" rx="5" fill="rgba(184,255,0,.06)" stroke="#B8FF00" stroke-width=".8"/>
+          <text x="46" y="240" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" font-weight="500" fill="#B8FF00">ALLOW</text>
+          <rect x="94" y="220" width="72" height="32" rx="5" fill="rgba(255,68,85,.06)" stroke="#FF4455" stroke-width=".8"/>
+          <text x="130" y="240" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" font-weight="500" fill="#FF4455">BLOCK</text>
+          <rect x="178" y="220" width="72" height="32" rx="5" fill="rgba(255,68,85,.12)" stroke="#FF4455" stroke-width="1.2"/>
+          <text x="214" y="240" text-anchor="middle" font-family="DM Mono,monospace" font-size="10" font-weight="700" fill="#FF4455">STOP</text>
+          <rect x="75" y="270" width="110" height="20" rx="3" fill="rgba(184,255,0,.05)"/>
+          <text x="130" y="283" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#B8FF00">CORE LOGIC LEAN 4 VERIFIED</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     EVIDENCE (AMBER)
+     ═══════════════════════════════════════════════════════════ -->
+<section class="scene" id="evidence">
+  <div class="container" style="text-align:center;">
+    <div class="rv"><div class="label" style="color:var(--amber);">Layer 3 — Evidence</div></div>
+    <h2 class="rv d1">The <span class="c-amber">notary</span>.</h2>
+    <p class="sub rv d2" style="margin-left:auto;margin-right:auto;">Every decision produces a cryptographic receipt. SHA-256 hash, manifest, timestamp. <strong>Cryptographically verifiable. Tamper-evident.</strong> If someone asks in a year why the robot stopped — the receipt and evidence trail exist.</p>
+
+    <div class="illus rv d3">
+      <svg width="420" height="140" viewBox="0 0 420 140" fill="none">
+        <rect x="10" y="5" width="400" height="130" rx="7" fill="#1A1D23" stroke="#F59E0B" stroke-width=".8"/>
+        <text x="35" y="30" font-family="DM Mono,monospace" font-size="10" font-weight="500" fill="#F59E0B">RECEIPT</text>
+        <text x="35" y="50" font-family="DM Mono,monospace" font-size="8.5" fill="#6B6B76">decision:   BLOCK</text>
+        <text x="35" y="65" font-family="DM Mono,monospace" font-size="8.5" fill="#6B6B76">timestamp:  2026-03-07T14:32:01Z</text>
+        <text x="35" y="80" font-family="DM Mono,monospace" font-size="8.5" fill="#6B6B76">policy:     operational_envelope_v3</text>
+        <text x="35" y="95" font-family="DM Mono,monospace" font-size="8.5" fill="#A0A0A8">sha256:     c7b84931...64bff24f</text>
+        <text x="35" y="115" font-family="DM Mono,monospace" font-size="8.5" fill="#F59E0B">status:     TAMPER-EVIDENT</text>
+        <circle cx="365" cy="68" r="25" fill="none" stroke="#F59E0B" stroke-width="1" opacity=".5"/>
+        <text x="365" y="66" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#F59E0B">VERIFIED</text>
+        <text x="365" y="78" text-anchor="middle" font-family="DM Mono,monospace" font-size="6" fill="#6B6B76">TAMPER-EVIDENT</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     SENTINEL (GREEN)
+     ═══════════════════════════════════════════════════════════ -->
+<section class="scene" id="sentinel">
+  <div class="container">
+    <div class="two-col">
+      <div>
+        <div class="rv"><div class="label" style="color:var(--accent);">Layer 4 — Sentinel Console</div></div>
+        <h2 class="rv d1">The <span class="accent">dashboard</span>.</h2>
+        <p class="sub rv d2"><strong>The human operator sees everything.</strong> Every decision, every conflict, every receipt.</p>
+        <p class="sub rv d3" style="margin-top:1rem;">Run tests. Inspect decisions. Export evidence. A runtime without operator visibility is operational risk.</p>
+      </div>
+      <div class="rv d2">
+        <svg width="380" height="200" viewBox="0 0 380 200" fill="none">
+          <rect x="5" y="5" width="370" height="190" rx="8" fill="#1A1D23" stroke="#B8FF00" stroke-width=".8"/>
+          <rect x="5" y="5" width="370" height="26" rx="8" fill="#14161C"/><rect x="5" y="21" width="370" height="10" fill="#14161C"/>
+          <circle cx="22" cy="18" r="3.5" fill="#FF4455" opacity=".7"/><circle cx="33" cy="18" r="3.5" fill="#F59E0B" opacity=".7"/><circle cx="44" cy="18" r="3.5" fill="#B8FF00" opacity=".7"/>
+          <text x="190" y="21" text-anchor="middle" font-family="DM Mono,monospace" font-size="7.5" fill="#6B6B76">MGOS Sentinel</text>
+          <circle cx="22" cy="48" r="4" fill="#B8FF00"/><text x="33" y="51" font-family="DM Mono,monospace" font-size="8" fill="#B8FF00">READY</text>
+          <text x="125" y="51" font-family="DM Mono,monospace" font-size="7" fill="#3A3A44">CORE_PIN: 337d69f71970</text>
+          <rect x="15" y="62" width="75" height="18" rx="3" fill="rgba(184,255,0,.06)" stroke="#B8FF00" stroke-width=".5"/><text x="52" y="74" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#B8FF00">RUN TESTS</text>
+          <rect x="98" y="62" width="105" height="18" rx="3" fill="rgba(184,255,0,.06)" stroke="#B8FF00" stroke-width=".5"/><text x="150" y="74" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#B8FF00">EXPORT EVIDENCE</text>
+          <rect x="211" y="62" width="100" height="18" rx="3" fill="rgba(255,255,255,.02)" stroke="#3A3A44" stroke-width=".5"/><text x="261" y="74" text-anchor="middle" font-family="DM Mono,monospace" font-size="7" fill="#6B6B76">DECISION PULSE</text>
+          <text x="15" y="100" font-family="DM Mono,monospace" font-size="7" fill="#3A3A44">[14:32:01] BLOCK  policy:envelope_v3  sha:c7b8...4f</text>
+          <text x="15" y="114" font-family="DM Mono,monospace" font-size="7" fill="#3A3A44">[14:32:02] ALLOW  policy:standard     sha:a91e...2c</text>
+          <text x="15" y="128" font-family="DM Mono,monospace" font-size="7" fill="#3A3A44">[14:32:03] ALLOW  policy:standard     sha:d4f1...8a</text>
+          <text x="15" y="142" font-family="DM Mono,monospace" font-size="7" fill="rgba(255,68,85,.5)">[14:32:06] STOP   policy:emergency    sha:0fb2...3e</text>
+          <text x="15" y="156" font-family="DM Mono,monospace" font-size="7" fill="#3A3A44">[14:32:07] ALLOW  policy:standard     sha:8de4...7b</text>
+          <text x="15" y="170" font-family="DM Mono,monospace" font-size="7" fill="rgba(245,158,11,.5)">[14:32:08] BLOCK  policy:thermal_lim  sha:e2b3...1d</text>
+          <text x="15" y="184" font-family="DM Mono,monospace" font-size="7" fill="#3A3A44">[14:32:09] ALLOW  policy:standard     sha:f109...4c</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     FULL PIPELINE (A→E)
+     ═══════════════════════════════════════════════════════════ -->
+<section class="scene" id="pipeline">
+  <div class="container" style="text-align:center;">
+    <div class="rv"><div class="label">The complete runtime</div></div>
+    <h2 class="rv d1">One product. One path.<br><span class="accent">Zero ambiguity.</span></h2>
+
+    <div class="rv d2" style="margin-top:2.5rem;">
+      <div class="g-row c5">
+        <div class="g-cell center pipe-step">
+          <div class="pipe-letter" style="color:var(--g500);">A</div>
+          <div class="pipe-name">Inputs</div>
+          <div class="pipe-desc">models | sensors<br>telemetry</div>
+        </div>
+        <div class="g-cell center pipe-step"><div class="pipe-bar" style="background:var(--blue);"></div>
+          <div class="pipe-letter" style="color:var(--blue);">B</div>
+          <div class="pipe-name">Integrity</div>
+          <div class="pipe-desc">canonicalize<br>stabilize</div>
+        </div>
+        <div class="g-cell center pipe-step"><div class="pipe-bar" style="background:var(--red);"></div>
+          <div class="pipe-letter" style="color:var(--red);">C</div>
+          <div class="pipe-name">Kernel</div>
+          <div class="pipe-desc">ALLOW | BLOCK<br>STOP</div>
+        </div>
+        <div class="g-cell center pipe-step"><div class="pipe-bar" style="background:var(--amber);"></div>
+          <div class="pipe-letter" style="color:var(--amber);">D</div>
+          <div class="pipe-name">Evidence</div>
+          <div class="pipe-desc">receipts<br>SHA-256</div>
+        </div>
+        <div class="g-cell center pipe-step"><div class="pipe-bar" style="background:var(--accent);"></div>
+          <div class="pipe-letter" style="color:var(--accent);">E</div>
+          <div class="pipe-name">Sentinel</div>
+          <div class="pipe-desc">operator<br>console</div>
+        </div>
+      </div>
+    </div>
+    <p class="rv d3" style="margin-top:1rem;font-family:var(--mono);font-size:.68rem;color:var(--g700);">Two patents | Core logic Lean 4 verified | Deterministic | Fail-safe</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     VERIFIED SCOPE
+     ═══════════════════════════════════════════════════════════ -->
+<section class="scene" id="scope">
+  <div class="container">
+    <div class="rv"><div class="label">What is proved. What is engineered. What is operational.</div></div>
+    <h2 class="rv d1" style="margin-bottom:2.5rem;">Verified scope.</h2>
+
+    <div class="scope-grid rv d2">
+      <!-- VERIFIED -->
+      <div class="scope-col s-green">
+        <div class="scope-title" style="color:var(--accent);">Formally verified</div>
+        <p style="font-size:.88rem;color:var(--white);margin-bottom:1rem;">Core authorization logic proved in Lean 4:</p>
+        <div class="scope-item">Fail-safe authorization</div>
+        <div class="scope-item">Conflict safety</div>
+        <div class="scope-item">Output exhaustiveness</div>
+        <div class="scope-item">Permutation invariance (TMR)</div>
+        <div class="scope-item">Manual-override dominance</div>
+        <div class="scope-note">Formal methods paper and artifact available on request</div>
+      </div>
+      <!-- ENGINEERED -->
+      <div class="scope-col s-blue">
+        <div class="scope-title" style="color:var(--blue);">Engineered</div>
+        <p style="font-size:.88rem;color:var(--white);margin-bottom:1rem;">Implementation layer:</p>
+        <div class="scope-item">Integrity pipeline</div>
+        <div class="scope-item">Normalizer boundary (N1–N3)</div>
+        <div class="scope-item">Evidence receipts + manifests</div>
+        <div class="scope-item">Sentinel operator console</div>
+        <div class="scope-item">SHA-256 evidence bundles</div>
+        <div class="scope-note">Refinement obligations explicit. Core formal proofs begin after the normalization boundary. Normalizer verification (PO4) remains open.</div>
+      </div>
+      <!-- OPERATIONAL -->
+      <div class="scope-col s-amber">
+        <div class="scope-title" style="color:var(--amber);">Operationally validated</div>
+        <p style="font-size:.88rem;color:var(--white);margin-bottom:1rem;">Black-box test suites:</p>
+        <div class="scope-item">Baseline hardtests: PASS</div>
+        <div class="scope-item">Soak tests: PASS</div>
+        <div class="scope-item">Poison-input tests: PASS</div>
+        <div class="scope-item">Zero unsafe authorization</div>
+        <div class="scope-item">Fail-close coverage = 1.0</div>
+        <div class="scope-note">In audited suites. Determinism and receipt identity claimed within pinned environment; cross-platform bitwise identity is out of scope.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     CORE PRINCIPLES
+     ═══════════════════════════════════════════════════════════ -->
+<section class="scene" id="principles">
+  <div class="container">
+    <div class="rv"><div class="label">Core principles</div></div>
+    <div style="max-width:620px;">
+      <div class="principle rv d1">
+        <div class="num" style="color:var(--blue);">01</div>
+        <div class="txt">We don't force data consistency.</div>
+      </div>
+      <div class="principle rv d2">
+        <div class="num" style="color:var(--red);">02</div>
+        <div class="txt">Conflict is signal, not noise.</div>
+      </div>
+      <div class="principle rv d3">
+        <div class="num" style="color:var(--amber);">03</div>
+        <div class="txt">Only stabilized state reaches the decision.</div>
+      </div>
+      <div class="principle rv d4">
+        <div class="num" style="color:var(--accent);">04</div>
+        <div class="txt">Execution is deterministic and fail-safe.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     CLOSING MOTTO
+     ═══════════════════════════════════════════════════════════ -->
+<section class="scene" style="text-align:center;padding:5rem 0;">
+  <div class="container">
+    <div class="rv" style="margin-bottom:2.5rem;text-align:center;">
+      <!-- Parent: Runtime Stack -->
+      <div style="display:inline-flex;align-items:flex-end;justify-content:center;gap:5px;padding-bottom:16px;background:var(--container);border-radius:18px;width:76px;height:76px;">
+        <div style="width:26px;height:38px;background:#EDEDED;border-radius:3px;"></div>
+        <div style="width:16px;height:28px;background:#EDEDED;border-radius:3px;"></div>
+      </div>
+      <div style="font-family:var(--mono);font-size:.5rem;letter-spacing:.1em;color:#EDEDED;margin-top:.4rem;">MGOS RUNTIME STACK</div>
+      <div style="width:1px;height:12px;background:var(--g700);margin:.35rem auto;"></div>
+      <!-- Children -->
+      <div style="display:flex;justify-content:center;gap:.7rem;">
+        <div class="logo-i lg"><div class="bl bl-l" style="background:#4488FF;"></div><div class="bl bl-r" style="background:#4488FF;"></div></div>
+        <div class="logo-i lg"><div class="bl bl-l" style="background:#FF4455;"></div><div class="bl bl-r" style="background:#FF4455;"></div></div>
+        <div class="logo-i lg"><div class="bl bl-l" style="background:#F59E0B;"></div><div class="bl bl-r" style="background:#F59E0B;"></div></div>
+        <div class="logo-i lg"><div class="bl bl-l" style="background:#B8FF00;"></div><div class="bl bl-r" style="background:#B8FF00;"></div></div>
+      </div>
+    </div>
+    <div class="rv d1"><div class="motto-line" style="color:var(--white);">AI proposes.</div></div>
+    <div class="rv d2"><div class="motto-line c-blue">Integrity stabilizes.</div></div>
+    <div class="rv d3"><div class="motto-line" style="color:var(--white);"><strong>MGOS authorizes.</strong></div></div>
+    <div class="rv d4"><div class="motto-line c-amber">Evidence proves.</div></div>
+
+    <div class="rv d4" style="margin-top:3rem;">
+      <p style="font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;color:var(--g500);margin-bottom:.75rem;">MGOS RUNTIME STACK</p>
+      <a href="mailto:eval@mgos.io" style="font-family:var(--mono);font-size:.82rem;color:var(--accent);border:1px solid var(--accent);padding:.5rem 1.5rem;border-radius:4px;display:inline-block;transition:background .2s;letter-spacing:.04em;" onmouseover="this.style.background='rgba(184,255,0,.08)'" onmouseout="this.style.background='transparent'">eval@mgos.io</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="container">
+    <div class="footer-row">
+      <div class="footer-left">(c) 2025-2026 Piotr Lukasz Jurkiewicz, PhD. All rights reserved. Patent pending (PL/US). CORE_PIN: 337d69f71970</div>
+      <div class="footer-right">
+        <a href="/">mgos.io</a> &nbsp;|&nbsp;
+        <a href="mailto:eval@mgos.io">eval@mgos.io</a> &nbsp;|&nbsp;
+        <a href="mailto:security@mgos.io">security@mgos.io</a> &nbsp;|&nbsp;
+        <a href="mailto:officecontact@mgos.io">officecontact@mgos.io</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+<!-- ═══ SCROLL REVEAL ═══ -->
+<script>
+document.body.classList.add('js-ready');
+const obs=new IntersectionObserver(e=>{e.forEach(el=>{if(el.isIntersecting)el.target.classList.add('vis')})},{threshold:.12,rootMargin:'0px 0px -30px 0px'});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+</script>
+
+</body>
+</html>
