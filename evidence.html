@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evidence Layer — MGOS Runtime Stack</title>
+<meta name="description" content="How to verify MGOS without trusting MGOS. Replayable, hash-verified, offline-verifiable evidence layer.">
+<meta property="og:title" content="Evidence Layer — MGOS Runtime Stack">
+<meta property="og:description" content="Replayable. Hash-verified. Offline-verifiable. Verify the artifact, not the story.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mgos.io/evidence">
+<link rel="canonical" href="https://mgos.io/evidence">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#08090a;--bg-r:#0e1012;--bg-s:#141618;--border:rgba(255,255,255,0.06);--border-h:rgba(255,255,255,0.12);--white:#e8e8e6;--g100:#ccc;--g300:#888;--g500:#555;--g700:#2a2a2a;--g900:#151515;--accent:#b8ee00;--red:#FF4455;--blue:#4488FF;--amber:#f59e0b;--green:#22c55e;--mono:'JetBrains Mono','SF Mono',monospace;--sans:'Instrument Sans',-apple-system,sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;}html{font-size:16px;scroll-behavior:smooth;-webkit-font-smoothing:antialiased;}body{background:var(--bg);color:var(--white);font-family:var(--sans);line-height:1.65;overflow-x:hidden;}::selection{background:var(--accent);color:var(--bg);}a{color:inherit;text-decoration:none;}.container{max-width:920px;margin:0 auto;padding:0 2rem;}section{padding:4.5rem 0;}.divider{border-top:1px solid var(--border);}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:.85rem 2rem;display:flex;justify-content:space-between;align-items:center;background:rgba(8,9,10,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);}.nav-logo{display:flex;align-items:center;gap:.6rem;}.nav-mark{width:26px;height:26px;background:var(--white);border-radius:4px;display:flex;align-items:flex-end;padding:3px;gap:2px;}.nav-mark .a{width:12px;height:15px;background:var(--bg);border-radius:1px;}.nav-mark .b{width:7px;height:10px;background:var(--bg);border-radius:1px;}.nav-logo span{font-family:var(--mono);font-weight:500;font-size:.78rem;letter-spacing:.04em;}.nav-links{display:flex;gap:1.5rem;align-items:center;}.nav-links a{color:var(--g300);font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;transition:color .2s;}.nav-links a:hover{color:var(--white);}.nav-back{color:var(--accent)!important;font-weight:500;}.nav-cta{background:var(--white)!important;color:var(--bg)!important;padding:.38rem .8rem;border-radius:3px;transition:background .2s!important;}.nav-cta:hover{background:var(--accent)!important;}
+
+.s-label{font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--g500);margin-bottom:2rem;display:flex;align-items:center;gap:.75rem;}.s-label::before{content:'';width:18px;height:1px;background:var(--g500);}
+h1{font-size:clamp(2rem,4.5vw,3rem);font-weight:700;line-height:1.1;letter-spacing:-.03em;margin-bottom:1rem;}
+h2{font-size:clamp(1.15rem,2.5vw,1.5rem);font-weight:600;letter-spacing:-.02em;margin-bottom:1rem;line-height:1.25;}
+.sub{color:var(--g300);font-size:.9rem;line-height:1.75;max-width:640px;}.sub strong{color:var(--white);}
+
+.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.65rem 1.3rem;border-radius:3px;font-family:var(--mono);font-size:.72rem;font-weight:500;letter-spacing:.02em;transition:all .2s;border:none;cursor:pointer;}.btn-w{background:var(--white);color:var(--bg);}.btn-w:hover{background:var(--accent);}.btn-o{background:transparent;color:var(--white);border:1px solid var(--border-h);}.btn-o:hover{border-color:var(--g300);background:rgba(255,255,255,.03);}
+
+/* CARDS */
+.card-grid{display:grid;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.card-grid.c2{grid-template-columns:repeat(2,1fr);}
+.card-grid.c3{grid-template-columns:repeat(3,1fr);}
+.card-grid.c4{grid-template-columns:repeat(4,1fr);}
+.card{background:var(--bg);padding:1.75rem 1.5rem;}
+.card h3{font-size:.88rem;font-weight:600;margin-bottom:.4rem;}
+.card p{font-size:.78rem;color:var(--g300);line-height:1.6;}
+.card .tag{font-family:var(--mono);font-size:.58rem;color:var(--g500);margin-bottom:.5rem;letter-spacing:.06em;}
+
+/* ARTIFACT LIST */
+.artifact{display:flex;align-items:center;gap:1rem;padding:.75rem 0;border-bottom:1px solid var(--border);}
+.artifact:last-child{border-bottom:none;}
+.artifact-name{font-family:var(--mono);font-size:.78rem;color:var(--accent);min-width:160px;flex-shrink:0;}
+.artifact-desc{font-size:.8rem;color:var(--g300);}
+
+/* STEPS */
+.step-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-top:1.5rem;}
+.step{background:var(--bg);padding:1.5rem 1.25rem;}
+.step-num{font-family:var(--mono);font-size:.58rem;color:var(--accent);letter-spacing:.1em;margin-bottom:.5rem;}
+.step-title{font-size:.85rem;font-weight:600;margin-bottom:.35rem;}
+.step-desc{font-size:.75rem;color:var(--g300);line-height:1.55;}
+
+/* SCOPE COLS */
+.scope-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;margin-top:1.5rem;}
+.scope-col{background:var(--bg-r);border:1px solid var(--border);border-radius:6px;padding:1.5rem;position:relative;overflow:hidden;}
+.scope-col::before{content:'';position:absolute;top:0;left:0;right:0;height:2.5px;}
+.scope-col.s-g::before{background:var(--accent);}
+.scope-col.s-a::before{background:var(--amber);}
+.scope-col.s-r::before{background:var(--red);}
+.scope-title{font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;margin-bottom:.6rem;}
+.scope-col p{font-size:.8rem;color:var(--g300);line-height:1.6;}
+
+/* GATE TABLE */
+.gate-table{width:100%;border-collapse:collapse;margin-top:1rem;}
+.gate-table th{font-family:var(--mono);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--g500);padding:.7rem 1rem;text-align:left;border-bottom:1px solid var(--border-h);font-weight:500;}
+.gate-table td{padding:.65rem 1rem;border-bottom:1px solid var(--border);font-size:.8rem;color:var(--g300);}
+.gate-table td:first-child{font-family:var(--mono);font-size:.75rem;color:var(--white);font-weight:500;width:80px;}
+.gate-table td:last-child{font-family:var(--mono);font-size:.72rem;color:var(--green);width:60px;text-align:center;}
+
+/* RECEIPT MOCK */
+.receipt-box{background:var(--bg-s);border:1px solid var(--amber);border-radius:6px;padding:1.5rem;font-family:var(--mono);font-size:.78rem;line-height:2;margin-top:1.5rem;}
+.receipt-box .field{color:var(--amber);}
+.receipt-box .val{color:var(--g300);}
+
+/* NOT CARDS */
+.not-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.not-card{background:var(--bg);padding:1.25rem;}
+.not-card .nt{font-family:var(--mono);font-size:.58rem;color:var(--red);margin-bottom:.3rem;letter-spacing:.08em;}
+.not-card p{font-size:.78rem;color:var(--g300);line-height:1.55;}
+
+footer{border-top:1px solid var(--border);padding:2.5rem 0;}.footer-inner{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1.5rem;}.footer-col{font-family:var(--mono);font-size:.62rem;color:var(--g500);line-height:2;}.footer-col a{color:var(--g300);transition:color .2s;}.footer-col a:hover{color:var(--accent);}
+
+@media(max-width:768px){.step-grid{grid-template-columns:1fr 1fr;}.scope-grid{grid-template-columns:1fr;}.card-grid.c3,.card-grid.c4{grid-template-columns:1fr;}.not-grid{grid-template-columns:1fr;}.nav-links a:not(.nav-cta):not(.nav-back){display:none;}}
+@media(max-width:500px){.step-grid{grid-template-columns:1fr;}.card-grid.c2{grid-template-columns:1fr;}.artifact-name{min-width:auto;}}
+</style>
+</head>
+<body>
+
+<nav><a href="/" class="nav-logo"><div class="nav-mark"><div class="a"></div><div class="b"></div></div><span>MGOS</span></a><div class="nav-links"><a href="/" class="nav-back">mgos.io</a><a href="/runtime-stack">Architecture</a><a href="/proof">Proof</a><a href="/compare">Compare</a><a href="mailto:eval@mgos.io" class="nav-cta">Request Eval</a></div></nav>
+
+<!-- HERO -->
+<section style="padding-top:6rem;">
+  <div class="container">
+    <div class="s-label">Evidence Layer</div>
+    <h1>Replayable.<br>Hash-verified.<br>Offline-verifiable.</h1>
+    <p class="sub">MGOS does not ask for blind trust. Its assurance claims are backed by a self-contained evidence layer: manifests, SHA-256 verification, replayable decision artifacts, and audited validation suites.</p>
+    <p style="font-family:var(--mono);font-size:.72rem;color:var(--g500);margin-top:1rem;padding-left:.75rem;border-left:2px solid var(--g700);">Tamper-evident by design. No external anchoring by default.</p>
+  </div>
+</section>
+
+<!-- 1. WHAT IT CONTAINS -->
+<section class="divider">
+  <div class="container">
+    <div class="s-label">What the evidence layer contains</div>
+    <h2>The operational proof trail of MGOS Runtime Stack.</h2>
+    <p class="sub" style="margin-bottom:1.5rem;">It does not prove the formal kernel theorems -- that belongs to the <a href="/proof" style="color:var(--accent);">/proof boundary</a>. It proves something different: that the delivered artifact, the replayed decisions, and the validation outputs are internally consistent, reproducible, and auditable.</p>
+    <div class="card-grid c4">
+      <div class="card"><div class="tag">RECEIPTS</div><h3>Decision-linked records</h3><p>Every authorization outcome is paired with a cryptographic trace.</p></div>
+      <div class="card"><div class="tag">MANIFEST</div><h3>Complete file inventory</h3><p>Every artifact in the bundle is listed, described, and accounted for.</p></div>
+      <div class="card"><div class="tag">SHA-256</div><h3>Integrity verification</h3><p>Every file hash is checked against the declared manifest.</p></div>
+      <div class="card"><div class="tag">REPLAY</div><h3>Reproducible outcomes</h3><p>Same input, same output, same hash in the pinned environment.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. WHAT IS DELIVERED -->
+<section class="divider">
+  <div class="container">
+    <div class="s-label">What is in the bundle</div>
+    <div class="artifact"><span class="artifact-name">MANIFEST.txt</span><span class="artifact-desc">Complete inventory of the delivered evidence package.</span></div>
+    <div class="artifact"><span class="artifact-name">SHA256SUMS.txt</span><span class="artifact-desc">Integrity checks for all bundled artifacts.</span></div>
+    <div class="artifact"><span class="artifact-name">VERIFY_BUNDLE.sh</span><span class="artifact-desc">One-command offline verification. No network, no dependencies.</span></div>
+    <div class="artifact"><span class="artifact-name">decision_logs/</span><span class="artifact-desc">Decision traces and outcome records.</span></div>
+    <div class="artifact"><span class="artifact-name">validation_reports/</span><span class="artifact-desc">Acceptance gates and audited suite outputs.</span></div>
+    <div class="artifact"><span class="artifact-name">build_notes/</span><span class="artifact-desc">Pinned environment and artifact provenance.</span></div>
+    <p style="font-family:var(--mono);font-size:.65rem;color:var(--g700);margin-top:1rem;">Delivered under evaluation agreement / NDA when applicable.</p>
+  </div>
+</section>
+
+<!-- 3. HOW TO VERIFY IN 5 MINUTES -->
+<section class="divider">
+  <div class="container">
+    <div class="s-label">How to verify in 5 minutes</div>
+    <h2>The point is not to watch a demo.<br>The point is to verify the artifact.</h2>
+    <div class="step-grid">
+      <div class="step">
+        <div class="step-num">STEP 1 | 30s</div>
+        <div class="step-title">Run VERIFY_BUNDLE.sh</div>
+        <div class="step-desc">One command. Checks manifest completeness and SHA-256 integrity. Offline. No dependencies.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">STEP 2 | 1 min</div>
+        <div class="step-title">Confirm manifest integrity</div>
+        <div class="step-desc">Every file listed. Every hash matches. No extra files. No missing artifacts.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">STEP 3 | 2 min</div>
+        <div class="step-title">Replay decision artifacts</div>
+        <div class="step-desc">Run selected decision traces in the pinned environment. Same input produces same output produces same hash.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">STEP 4 | 1 min</div>
+        <div class="step-title">Check audited gates</div>
+        <div class="step-desc">Compare gate outputs against delivered reports. Verify that acceptance criteria are met.</div>
+      </div>
+    </div>
+    <p style="font-family:var(--mono);font-size:.68rem;color:var(--g500);margin-top:1rem;">The delivered evidence package is designed to be self-consistent and reproducible -- not to require trust in MGOS.</p>
+  </div>
+</section>
+
+<!-- 4. WHAT EVIDENCE SUPPORTS -->
+<section class="divider">
+  <div class="container">
+    <div class="s-label">What the evidence supports</div>
+    <div class="scope-grid">
+      <div class="scope-col s-g">
+        <div class="scope-title" style="color:var(--accent);">Formally proved</div>
+        <p>Core authorization logic. Mechanized in Lean 4.</p>
+        <p style="margin-top:.5rem;"><a href="/proof" style="color:var(--accent);font-family:var(--mono);font-size:.72rem;border-bottom:1px solid rgba(184,238,0,.3);">Open /proof</a></p>
+      </div>
+      <div class="scope-col s-a">
+        <div class="scope-title" style="color:var(--amber);">Operationally validated</div>
+        <p>Audited suites, replay outputs, acceptance gates. This is what evidence directly supports.</p>
+      </div>
+      <div class="scope-col s-r">
+        <div class="scope-title" style="color:var(--red);">Not claimed by evidence alone</div>
+        <p>Full-system certification. Hardware safety case. Cross-platform bitwise identity. Upstream AI truth.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. AUDITED GATES -->
+<section class="divider">
+  <div class="container">
+    <div class="s-label">Audited validation gates</div>
+    <table class="gate-table">
+      <thead><tr><th>Gate</th><th>What it checks</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>A0</td><td>Bundle integrity -- MANIFEST / SHA / VERIFY offline</td><td>PASS</td></tr>
+        <tr><td>A5</td><td>Replay determinism -- same input, same output, same hash</td><td>PASS</td></tr>
+        <tr><td>S1 / S2</td><td>Conflict and fault no-go behavior -- zero ALLOW on conflict</td><td>PASS</td></tr>
+        <tr><td>G96</td><td>Load stability -- decisions stable under CPU load</td><td>PASS</td></tr>
+        <tr><td>G97</td><td>Dirty-input handling -- deterministic return, no crashes</td><td>PASS</td></tr>
+      </tbody>
+    </table>
+    <p style="font-family:var(--mono);font-size:.62rem;color:var(--g700);margin-top:.75rem;">Statuses refer to audited suites in the pinned evaluation environment. Gate IDs correspond to the evidence bundle report.</p>
+  </div>
+</section>
+
+<!-- 6. HARDTEST SUITES -->
+<section class="divider">
+  <div class="container">
+    <div class="s-label">Audited suites</div>
+    <div class="card-grid c3">
+      <div class="card">
+        <div class="tag">BASELINE</div>
+        <h3>Reference behavior</h3>
+        <p>Standard suite for expected runtime behavior under normal operating conditions.</p>
+      </div>
+      <div class="card">
+        <div class="tag">SOAK</div>
+        <h3>Stability audit</h3>
+        <p>Longer-run stability and drift detection under sustained operation.</p>
+      </div>
+      <div class="card">
+        <div class="tag">POISON</div>
+        <h3>Adversarial inputs</h3>
+        <p>Fail-close behavior under malformed, adversarial, or contradictory inputs.</p>
+      </div>
+    </div>
+    <div style="margin-top:1rem;padding:1rem 1.25rem;background:var(--bg-s);border:1px solid var(--border);border-radius:5px;border-left:2px solid var(--green);">
+      <p style="font-size:.82rem;color:var(--g100);"><strong style="color:var(--green);">Zero unsafe authorization</strong> in the audited suites. Explicit fail-close coverage is tracked separately where required.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 7. RECEIPT MODEL -->
+<section class="divider">
+  <div class="container">
+    <div class="s-label">What a receipt means</div>
+    <h2>Not a log line. An integrity-linked authorization trace.</h2>
+    <div class="receipt-box">
+      <span class="field">decision:</span>   <span class="val">BLOCK</span><br>
+      <span class="field">timestamp:</span>  <span class="val">2026-03-07T14:32:01Z</span><br>
+      <span class="field">policy:</span>     <span class="val">operational_envelope_v3</span><br>
+      <span class="field">state:</span>      <span class="val">conflict_detected | channels: 3</span><br>
+      <span class="field">digest:</span>     <span class="val">c7b84931...64bff24f</span>
+    </div>
+    <p style="font-family:var(--mono);font-size:.68rem;color:var(--g500);margin-top:1rem;padding-left:.75rem;border-left:2px solid var(--amber);">Receipts are tamper-evident. They are not externally anchored by default. Receipt verification = hash-chain + bundle integrity (MANIFEST / SHA).</p>
+  </div>
+</section>
+
+<!-- 8. WHAT EVIDENCE IS NOT -->
+<section class="divider">
+  <div class="container">
+    <div class="s-label">What this evidence does not claim</div>
+    <div class="not-grid">
+      <div class="not-card"><div class="nt">NOT CLAIMED</div><p>Full-system certification. Evidence supports certification workflows but does not substitute for them.</p></div>
+      <div class="not-card"><div class="nt">NOT CLAIMED</div><p>Hardware fault closure. Hardware redundancy remains a deployment obligation.</p></div>
+      <div class="not-card"><div class="nt">NOT CLAIMED</div><p>Upstream AI truth verification. MGOS authorizes execution; it does not evaluate semantic truth.</p></div>
+      <div class="not-card"><div class="nt">NOT CLAIMED</div><p>Cross-platform bitwise identity. Determinism is claimed within a pinned environment only.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 9. ACCESS MODEL -->
+<section class="divider">
+  <div class="container">
+    <div class="s-label">How access works</div>
+    <div style="max-width:560px;">
+      <div style="padding:1rem 0;border-bottom:1px solid var(--border);font-size:.85rem;color:var(--g300);">Public site shows the evidence model and verification process.</div>
+      <div style="padding:1rem 0;border-bottom:1px solid var(--border);font-size:.85rem;color:var(--g300);">Detailed bundles are shared for evaluation under NDA.</div>
+      <div style="padding:1rem 0;border-bottom:1px solid var(--border);font-size:.85rem;color:var(--g300);">Artifact access can be provided for technical diligence.</div>
+      <div style="padding:1rem 0;font-size:.85rem;color:var(--g100);">Verification is designed for <strong>third-party review</strong>, not only internal demonstration.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 10. CTA -->
+<section class="divider" style="padding:4rem 0;">
+  <div class="container" style="text-align:center;">
+    <h2 style="margin-bottom:.5rem;">Trust the claim if you want.<br>Verify the artifact if you need.</h2>
+    <p style="color:var(--g300);font-size:.88rem;margin-bottom:2rem;">Evidence bundle delivered under NDA within 24h. Offline-verifiable. MANIFEST / SHA / VERIFY.</p>
+    <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;">
+      <a href="mailto:eval@mgos.io" class="btn btn-w">Request Evaluation Bundle</a>
+      <a href="/proof" class="btn btn-o">Open Proof Boundary</a>
+      <a href="/runtime-stack" class="btn btn-o">Back to Runtime Stack</a>
+    </div>
+  </div>
+</section>
+
+<footer><div class="container"><div class="footer-inner">
+<div class="footer-col">(c) 2025-2026 Piotr Lukasz Jurkiewicz, PhD. All rights reserved.<br>MGOS Runtime Stack | Patent pending (PL/US) | CORE_PIN: 337d69f71970</div>
+<div class="footer-col" style="text-align:right;"><a href="/">mgos.io</a> | <a href="/runtime-stack">Architecture</a> | <a href="/proof">Proof</a> | <a href="/compare">Compare</a> | <a href="mailto:eval@mgos.io">eval@mgos.io</a></div>
+</div></div></footer>
+
+</body>
+</html>
